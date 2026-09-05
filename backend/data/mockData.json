@@ -1,0 +1,313 @@
+{
+  "maintenanceJobs": [
+    {
+      "job_id": "TMS001",
+      "department": "TMS",
+      "section_id": "S01",
+      "asset_id": "TRK101",
+      "asset_type": "Track",
+      "defect_type": "Rail Crack",
+      "maintenance_type": "Corrective",
+      "severity": 5,
+      "overdue_days": 7,
+      "estimated_duration": 2,
+      "power_block_required": false,
+      "asset_impact": 90,
+      "delay_risk": 85,
+      "priority_score": 91,
+      "priority": "Critical",
+      "status": "Pending"
+    },
+    {
+      "job_id": "TMS002",
+      "department": "TMS",
+      "section_id": "S03",
+      "asset_id": "TRK203",
+      "asset_type": "Track",
+      "defect_type": "Sleeper Damage",
+      "maintenance_type": "Preventive",
+      "severity": 3,
+      "overdue_days": 2,
+      "estimated_duration": 3,
+      "power_block_required": false,
+      "asset_impact": 50,
+      "delay_risk": 40,
+      "priority_score": 58,
+      "priority": "Medium",
+      "status": "Pending"
+    },
+    {
+      "job_id": "SM001",
+      "department": "SMMS",
+      "section_id": "S01",
+      "asset_id": "SIG101",
+      "asset_type": "Signal",
+      "defect_type": "Signal Failure",
+      "maintenance_type": "Corrective",
+      "severity": 5,
+      "overdue_days": 4,
+      "estimated_duration": 1,
+      "power_block_required": false,
+      "asset_impact": 90,
+      "delay_risk": 85,
+      "priority_score": 82,
+      "priority": "Critical",
+      "status": "Pending"
+    },
+    {
+      "job_id": "SM002",
+      "department": "SMMS",
+      "section_id": "S04",
+      "asset_id": "SIG204",
+      "asset_type": "Point Machine",
+      "defect_type": "Motor Issue",
+      "maintenance_type": "Corrective",
+      "severity": 4,
+      "overdue_days": 3,
+      "estimated_duration": 2,
+      "power_block_required": false,
+      "asset_impact": 75,
+      "delay_risk": 70,
+      "priority_score": 76,
+      "priority": "High",
+      "status": "Pending"
+    },
+    {
+      "job_id": "TD001",
+      "department": "TDMS",
+      "section_id": "S01",
+      "asset_id": "OHE101",
+      "asset_type": "OHE",
+      "defect_type": "Wire Defect",
+      "maintenance_type": "Corrective",
+      "severity": 5,
+      "overdue_days": 6,
+      "estimated_duration": 2,
+      "power_block_required": true,
+      "asset_impact": 90,
+      "delay_risk": 85,
+      "priority_score": 87,
+      "priority": "Critical",
+      "status": "Pending"
+    },
+    {
+      "job_id": "TD002",
+      "department": "TDMS",
+      "section_id": "S03",
+      "asset_id": "OHE203",
+      "asset_type": "OHE",
+      "defect_type": "Insulator Issue",
+      "maintenance_type": "Preventive",
+      "severity": 3,
+      "overdue_days": 2,
+      "estimated_duration": 1,
+      "power_block_required": true,
+      "asset_impact": 50,
+      "delay_risk": 45,
+      "priority_score": 52,
+      "priority": "Medium",
+      "status": "Pending"
+    }
+  ],
+
+  "sections": [
+    {
+      "section_id": "S01",
+      "from_station": "ST01",
+      "to_station": "ST02",
+      "distance_km": 8.5,
+      "electrified": true
+    },
+    {
+      "section_id": "S02",
+      "from_station": "ST02",
+      "to_station": "ST03",
+      "distance_km": 12.2,
+      "electrified": true
+    },
+    {
+      "section_id": "S03",
+      "from_station": "ST03",
+      "to_station": "ST04",
+      "distance_km": 9.8,
+      "electrified": true
+    },
+    {
+      "section_id": "S04",
+      "from_station": "ST04",
+      "to_station": "ST05",
+      "distance_km": 15.0,
+      "electrified": false
+    }
+  ],
+
+  "stations": [
+    {
+      "station_id": "ST01",
+      "station_code": "A01",
+      "station_name": "Station A",
+      "latitude": 12.9716,
+      "longitude": 77.5946
+    },
+    {
+      "station_id": "ST02",
+      "station_code": "B01",
+      "station_name": "Station B",
+      "latitude": 13.0200,
+      "longitude": 77.6000
+    },
+    {
+      "station_id": "ST03",
+      "station_code": "C01",
+      "station_name": "Station C",
+      "latitude": 13.0700,
+      "longitude": 77.6100
+    },
+    {
+      "station_id": "ST04",
+      "station_code": "D01",
+      "station_name": "Station D",
+      "latitude": 13.1200,
+      "longitude": 77.6300
+    },
+    {
+      "station_id": "ST05",
+      "station_code": "E01",
+      "station_name": "Station E",
+      "latitude": 13.1800,
+      "longitude": 77.6500
+    }
+  ],
+
+  "trains": [
+    {
+      "train_id": "T001",
+      "train_name": "Express A",
+      "train_type": "Express"
+    },
+    {
+      "train_id": "T002",
+      "train_name": "Passenger B",
+      "train_type": "Passenger"
+    },
+    {
+      "train_id": "T003",
+      "train_name": "Superfast C",
+      "train_type": "Superfast"
+    },
+    {
+      "train_id": "T004",
+      "train_name": "Freight D",
+      "train_type": "Freight"
+    }
+  ],
+
+  "trainMovements": [
+    {
+      "movement_id": "M001",
+      "train_id": "T001",
+      "section_id": "S01",
+      "date": "2026-09-05",
+      "arrival_time": "09:10",
+      "departure_time": "09:12",
+      "direction": "UP"
+    },
+    {
+      "movement_id": "M002",
+      "train_id": "T001",
+      "section_id": "S02",
+      "date": "2026-09-05",
+      "arrival_time": "09:30",
+      "departure_time": "09:32",
+      "direction": "UP"
+    },
+    {
+      "movement_id": "M003",
+      "train_id": "T002",
+      "section_id": "S01",
+      "date": "2026-09-05",
+      "arrival_time": "10:00",
+      "departure_time": "10:02",
+      "direction": "DOWN"
+    },
+    {
+      "movement_id": "M004",
+      "train_id": "T003",
+      "section_id": "S03",
+      "date": "2026-09-05",
+      "arrival_time": "11:15",
+      "departure_time": "11:18",
+      "direction": "UP"
+    }
+  ],
+
+  "blocks": [
+    {
+      "block_id": "B001",
+      "section_id": "S01",
+      "date": "2026-09-05",
+      "start_time": "02:00",
+      "end_time": "04:00",
+      "duration_minutes": 120,
+      "status": "Available"
+    },
+    {
+      "block_id": "B002",
+      "section_id": "S02",
+      "date": "2026-09-05",
+      "start_time": "01:20",
+      "end_time": "03:00",
+      "duration_minutes": 100,
+      "status": "Available"
+    },
+    {
+      "block_id": "B003",
+      "section_id": "S03",
+      "date": "2026-09-05",
+      "start_time": "03:30",
+      "end_time": "06:00",
+      "duration_minutes": 150,
+      "status": "Available"
+    }
+  ],
+
+  "plannedJobs": [
+    {
+      "job_id": "TMS001",
+      "block_id": "B001",
+      "section_id": "S01",
+      "start_time": "02:00",
+      "end_time": "04:00",
+      "priority": "Critical",
+      "department": "TMS"
+    },
+    {
+      "job_id": "SM001",
+      "block_id": "B001",
+      "section_id": "S01",
+      "start_time": "02:00",
+      "end_time": "03:00",
+      "priority": "Critical",
+      "department": "SMMS"
+    },
+    {
+      "job_id": "TD001",
+      "block_id": "B001",
+      "section_id": "S01",
+      "start_time": "02:00",
+      "end_time": "04:00",
+      "priority": "Critical",
+      "department": "TDMS"
+    }
+  ],
+
+  "kpis": {
+    "total_jobs": 30,
+    "critical_jobs": 8,
+    "scheduled_jobs": 22,
+    "available_blocks": 15,
+    "schedule_conflicts": 0,
+    "block_utilization": 78,
+    "cross_department_bundles": 4
+  }
+}
