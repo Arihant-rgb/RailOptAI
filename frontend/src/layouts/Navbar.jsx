@@ -1,10 +1,26 @@
 import { useState, useEffect } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
-import { Search, Bell, ChevronDown, Wrench, MapPin, Clock, CalendarDays, RefreshCw, Brain, FileBarChart, Menu } from 'lucide-react'
+import { Search, Bell, ChevronDown, Wrench, MapPin, Clock, CalendarDays, RefreshCw, Brain, FileBarChart, Menu, Activity } from 'lucide-react'
+import { checkHealth } from '../services/api'
 
 export default function Navbar({ toggleSidebar }) {
   const [openDropdown, setOpenDropdown] = useState(null);
+  const [backendStatus, setBackendStatus] = useState('checking'); // 'online', 'offline', 'checking'
   const location = useLocation();
+
+  useEffect(() => {
+    const verifyBackend = async () => {
+      try {
+        await checkHealth();
+        setBackendStatus('online');
+      } catch (err) {
+        setBackendStatus('offline');
+      }
+    };
+    verifyBackend();
+    const interval = setInterval(verifyBackend, 15000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Close dropdown when route changes
   useEffect(() => {
@@ -101,8 +117,20 @@ export default function Navbar({ toggleSidebar }) {
       </nav>
       </div>
 
-      {/* Right: Global Tools */}
+      {/* Right: Global Tools & Backend Status */}
       <div className="flex items-center gap-3 ml-auto">
+        {/* Backend Status Pill */}
+        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border bg-gray-50">
+          <span className={`w-2 h-2 rounded-full ${
+            backendStatus === 'online' ? 'bg-emerald-500 animate-pulse' :
+            backendStatus === 'offline' ? 'bg-red-500' : 'bg-amber-500'
+          }`} />
+          <span className="text-gray-700 hidden sm:inline">
+            {backendStatus === 'online' ? 'Backend Connected' :
+             backendStatus === 'offline' ? 'Backend Offline' : 'Checking API...'}
+          </span>
+        </div>
+
         {/* Search */}
         <div className="relative hidden md:block">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -112,13 +140,6 @@ export default function Navbar({ toggleSidebar }) {
             className="pl-9 pr-4 py-1.5 w-48 lg:w-64 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rail-500 focus:border-transparent transition-all"
           />
         </div>
-
-        {/* Section Filter */}
-        <select className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-rail-500 hidden sm:block">
-          <option value="">All Sections</option>
-          <option value="BPL-ET">BPL - Itarsi</option>
-          <option value="ET-JBP">Itarsi - JBP</option>
-        </select>
 
         {/* Notifications */}
         <button className="relative p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors ml-1">

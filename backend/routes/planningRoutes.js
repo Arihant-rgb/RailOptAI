@@ -127,4 +127,65 @@ router.post('/replan', async (req, res) => {
   }
 });
 
+// POST /api/planning/forward (Job -> best blocks)
+router.post('/forward', async (req, res) => {
+  try {
+    const { job_id } = req.body;
+    const mock = readMockData();
+    const job = (mock.maintenanceJobs || []).find(j => j.job_id === job_id) || {
+      job_id: job_id || 'TMS001',
+      section_id: 'S01',
+      estimated_duration: 2,
+      priority: 'Critical'
+    };
+
+    // Find blocks matching section
+    const matchingBlocks = (mock.blocks || []).filter(b => b.section_id === job.section_id);
+
+    return res.json({
+      success: true,
+      job,
+      bestBlocks: matchingBlocks.length > 0 ? matchingBlocks : [
+        { block_id: 'B001', section_id: job.section_id, start_time: '02:00', end_time: '04:00', duration_minutes: 120, fit_score: 95, status: 'Available' },
+        { block_id: 'B002', section_id: job.section_id, start_time: '13:00', end_time: '15:00', duration_minutes: 120, fit_score: 88, status: 'Available' }
+      ]
+    });
+  } catch (error) {
+    console.error('Error in forward planning:', error);
+    res.status(500).json({ error: 'Forward planning failed' });
+  }
+});
+
+// POST /api/planning/reverse (Block -> best work package)
+router.post('/reverse', async (req, res) => {
+  try {
+    const { block_id } = req.body;
+    const mock = readMockData();
+    const block = (mock.blocks || []).find(b => b.block_id === block_id) || {
+      block_id: block_id || 'B001',
+      section_id: 'S01',
+      start_time: '02:00',
+      end_time: '04:00',
+      duration_minutes: 120
+    };
+
+    // Find pending jobs on the same section
+    const compatibleJobs = (mock.maintenanceJobs || []).filter(j => j.section_id === block.section_id);
+
+    return res.json({
+      success: true,
+      block,
+      recommendedWorkPackage: {
+        bundled_jobs: compatibleJobs.slice(0, 3),
+        total_duration: 120,
+        bundle_score: 94,
+        cross_department: true
+      }
+    });
+  } catch (error) {
+    console.error('Error in reverse planning:', error);
+    res.status(500).json({ error: 'Reverse planning failed' });
+  }
+});
+
 export default router;

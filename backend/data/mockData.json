@@ -107,9 +107,21 @@
       "priority_score": 52,
       "priority": "Medium",
       "status": "Pending"
+    },
+    {
+      "job_id": "TMS005",
+      "department": "TMS",
+      "section_id": "S02",
+      "asset_id": "TRK105",
+      "asset_type": "Track",
+      "defect_type": "Rail Crack",
+      "severity": 5,
+      "overdue_days": 3,
+      "estimated_duration": 2,
+      "priority": "Critical",
+      "status": "Pending"
     }
   ],
-
   "sections": [
     {
       "section_id": "S01",
@@ -136,11 +148,10 @@
       "section_id": "S04",
       "from_station": "ST04",
       "to_station": "ST05",
-      "distance_km": 15.0,
+      "distance_km": 15,
       "electrified": false
     }
   ],
-
   "stations": [
     {
       "station_id": "ST01",
@@ -153,32 +164,31 @@
       "station_id": "ST02",
       "station_code": "B01",
       "station_name": "Station B",
-      "latitude": 13.0200,
-      "longitude": 77.6000
+      "latitude": 13.02,
+      "longitude": 77.6
     },
     {
       "station_id": "ST03",
       "station_code": "C01",
       "station_name": "Station C",
-      "latitude": 13.0700,
-      "longitude": 77.6100
+      "latitude": 13.07,
+      "longitude": 77.61
     },
     {
       "station_id": "ST04",
       "station_code": "D01",
       "station_name": "Station D",
-      "latitude": 13.1200,
-      "longitude": 77.6300
+      "latitude": 13.12,
+      "longitude": 77.63
     },
     {
       "station_id": "ST05",
       "station_code": "E01",
       "station_name": "Station E",
-      "latitude": 13.1800,
-      "longitude": 77.6500
+      "latitude": 13.18,
+      "longitude": 77.65
     }
   ],
-
   "trains": [
     {
       "train_id": "T001",
@@ -201,7 +211,6 @@
       "train_type": "Freight"
     }
   ],
-
   "trainMovements": [
     {
       "movement_id": "M001",
@@ -240,7 +249,6 @@
       "direction": "UP"
     }
   ],
-
   "blocks": [
     {
       "block_id": "B001",
@@ -270,7 +278,6 @@
       "status": "Available"
     }
   ],
-
   "plannedJobs": [
     {
       "job_id": "TMS001",
@@ -298,9 +305,35 @@
       "end_time": "04:00",
       "priority": "Critical",
       "department": "TDMS"
+    },
+    {
+      "job_id": "EMG_999",
+      "block_id": "B001",
+      "section_id": "S01",
+      "start_time": "02:00",
+      "end_time": "04:00",
+      "priority": "Critical",
+      "department": "SMMS"
+    },
+    {
+      "job_id": "EMG_0899",
+      "block_id": "B001",
+      "section_id": "S02",
+      "start_time": "02:00",
+      "end_time": "04:00",
+      "priority": "Critical",
+      "department": "SMMS"
+    },
+    {
+      "job_id": "EMG_8030",
+      "block_id": "B001",
+      "section_id": "S03",
+      "start_time": "02:00",
+      "end_time": "04:00",
+      "priority": "Critical",
+      "department": "SMMS"
     }
   ],
-
   "kpis": {
     "total_jobs": 30,
     "critical_jobs": 8,
