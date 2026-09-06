@@ -1,0 +1,338 @@
+{
+  "kpis": {
+    "totalJobs": 342,
+    "criticalJobs": 47,
+    "pendingJobs": 128,
+    "completedJobs": 167,
+    "availableBlocks": 56,
+    "utilization": 78.5,
+    "conflicts": 12,
+    "bundles": 23
+  },
+  "kpiTrends": [
+    { "date": "2024-07-01", "completed": 22, "pending": 18, "critical": 5 },
+    { "date": "2024-07-02", "completed": 25, "pending": 15, "critical": 7 },
+    { "date": "2024-07-03", "completed": 19, "pending": 21, "critical": 4 },
+    { "date": "2024-07-04", "completed": 28, "pending": 12, "critical": 6 },
+    { "date": "2024-07-05", "completed": 31, "pending": 14, "critical": 3 },
+    { "date": "2024-07-06", "completed": 24, "pending": 19, "critical": 8 },
+    { "date": "2024-07-07", "completed": 18, "pending": 22, "critical": 6 }
+  ],
+  "jobsByDepartment": [
+    { "department": "Track (P.Way)", "count": 124 },
+    { "department": "Signal & Telecom", "count": 87 },
+    { "department": "OHE/Electrical", "count": 65 },
+    { "department": "Civil Engineering", "count": 42 },
+    { "department": "Mechanical", "count": 24 }
+  ],
+  "jobsByPriority": [
+    { "priority": "Critical", "count": 47, "color": "#ef4444" },
+    { "priority": "High", "count": 83, "color": "#f59e0b" },
+    { "priority": "Medium", "count": 125, "color": "#3b82f6" },
+    { "priority": "Low", "count": 87, "color": "#6b7280" }
+  ],
+  "maintenanceJobs": [
+    {
+      "id": "TMS-2024-001",
+      "source": "TMS",
+      "section": "BPL-ET",
+      "department": "Track (P.Way)",
+      "description": "Rail fracture detected at KM 423/5-7, DN line",
+      "priority": "Critical",
+      "status": "Pending",
+      "requestedDate": "2024-07-15",
+      "location": "KM 423/5-7",
+      "blockRequired": true,
+      "estimatedDuration": 4,
+      "assignedBlock": null
+    },
+    {
+      "id": "TMS-2024-002",
+      "source": "TMS",
+      "section": "BPL-ET",
+      "department": "Track (P.Way)",
+      "description": "Weld joint renewal at KM 418/3, UP line",
+      "priority": "High",
+      "status": "Scheduled",
+      "requestedDate": "2024-07-16",
+      "location": "KM 418/3",
+      "blockRequired": true,
+      "estimatedDuration": 3,
+      "assignedBlock": "BLK-0042"
+    },
+    {
+      "id": "SMMS-2024-001",
+      "source": "SMMS",
+      "section": "BPL-ET",
+      "department": "Signal & Telecom",
+      "description": "Signal relay replacement at Habibganj station",
+      "priority": "High",
+      "status": "In Progress",
+      "requestedDate": "2024-07-14",
+      "location": "Habibganj (HBJ)",
+      "blockRequired": true,
+      "estimatedDuration": 2,
+      "assignedBlock": "BLK-0038"
+    },
+    {
+      "id": "SMMS-2024-002",
+      "source": "SMMS",
+      "section": "ET-JBP",
+      "department": "Signal & Telecom",
+      "description": "Track circuit fault repair, Itarsi outer",
+      "priority": "Critical",
+      "status": "Pending",
+      "requestedDate": "2024-07-15",
+      "location": "Itarsi Outer",
+      "blockRequired": true,
+      "estimatedDuration": 3,
+      "assignedBlock": null
+    },
+    {
+      "id": "TDMS-2024-001",
+      "source": "TDMS",
+      "section": "BPL-ET",
+      "department": "OHE/Electrical",
+      "description": "OHE mast foundation repair near Misrod",
+      "priority": "Medium",
+      "status": "Scheduled",
+      "requestedDate": "2024-07-17",
+      "location": "KM 410/2",
+      "blockRequired": true,
+      "estimatedDuration": 5,
+      "assignedBlock": "BLK-0045"
+    },
+    {
+      "id": "TDMS-2024-002",
+      "source": "TDMS",
+      "section": "ET-JBP",
+      "department": "OHE/Electrical",
+      "description": "Catenary wire sagging correction, Hoshangabad section",
+      "priority": "High",
+      "status": "Pending",
+      "requestedDate": "2024-07-16",
+      "location": "KM 445/8",
+      "blockRequired": true,
+      "estimatedDuration": 4,
+      "assignedBlock": null
+    },
+    {
+      "id": "TMS-2024-003",
+      "source": "TMS",
+      "section": "ET-JBP",
+      "department": "Track (P.Way)",
+      "description": "Ballast cleaning and tamping at KM 450-452",
+      "priority": "Medium",
+      "status": "Completed",
+      "requestedDate": "2024-07-10",
+      "location": "KM 450-452",
+      "blockRequired": true,
+      "estimatedDuration": 6,
+      "assignedBlock": "BLK-0032"
+    },
+    {
+      "id": "TMS-2024-004",
+      "source": "TMS",
+      "section": "BPL-ET",
+      "department": "Track (P.Way)",
+      "description": "Level crossing gate mechanism repair at LC-42",
+      "priority": "Low",
+      "status": "Pending",
+      "requestedDate": "2024-07-20",
+      "location": "LC-42, KM 415",
+      "blockRequired": false,
+      "estimatedDuration": 2,
+      "assignedBlock": null
+    },
+    {
+      "id": "SMMS-2024-003",
+      "source": "SMMS",
+      "section": "BPL-ET",
+      "department": "Signal & Telecom",
+      "description": "Axle counter reset and calibration at Obaidullaganj",
+      "priority": "Medium",
+      "status": "Completed",
+      "requestedDate": "2024-07-09",
+      "location": "Obaidullaganj (OBD)",
+      "blockRequired": true,
+      "estimatedDuration": 2,
+      "assignedBlock": "BLK-0029"
+    },
+    {
+      "id": "TDMS-2024-003",
+      "source": "TDMS",
+      "section": "ET-JBP",
+      "department": "OHE/Electrical",
+      "description": "Pantograph clearance check and insulator cleaning",
+      "priority": "Low",
+      "status": "Scheduled",
+      "requestedDate": "2024-07-22",
+      "location": "KM 460/1-3",
+      "blockRequired": true,
+      "estimatedDuration": 3,
+      "assignedBlock": "BLK-0051"
+    },
+    {
+      "id": "TMS-2024-005",
+      "source": "TMS",
+      "section": "BPL-ET",
+      "department": "Civil Engineering",
+      "description": "Bridge inspection and crack sealing at Bridge No. 187",
+      "priority": "High",
+      "status": "Pending",
+      "requestedDate": "2024-07-18",
+      "location": "Bridge 187, KM 420",
+      "blockRequired": true,
+      "estimatedDuration": 8,
+      "assignedBlock": null
+    },
+    {
+      "id": "TMS-2024-006",
+      "source": "TMS",
+      "section": "ET-JBP",
+      "department": "Track (P.Way)",
+      "description": "Turnout renewal at Itarsi Yard, Point No. 14",
+      "priority": "Critical",
+      "status": "In Progress",
+      "requestedDate": "2024-07-13",
+      "location": "Itarsi Yard",
+      "blockRequired": true,
+      "estimatedDuration": 10,
+      "assignedBlock": "BLK-0036"
+    }
+  ],
+  "blocks": [
+    {
+      "id": "BLK-0038",
+      "section": "BPL-ET",
+      "date": "2024-07-15",
+      "startTime": "01:00",
+      "endTime": "04:00",
+      "type": "Traffic",
+      "line": "UP",
+      "status": "Approved",
+      "assignedJobs": ["SMMS-2024-001"]
+    },
+    {
+      "id": "BLK-0042",
+      "section": "BPL-ET",
+      "date": "2024-07-16",
+      "startTime": "00:30",
+      "endTime": "04:30",
+      "type": "Traffic",
+      "line": "DN",
+      "status": "Approved",
+      "assignedJobs": ["TMS-2024-002"]
+    },
+    {
+      "id": "BLK-0045",
+      "section": "BPL-ET",
+      "date": "2024-07-17",
+      "startTime": "02:00",
+      "endTime": "05:00",
+      "type": "Power",
+      "line": "UP",
+      "status": "Proposed",
+      "assignedJobs": ["TDMS-2024-001"]
+    },
+    {
+      "id": "BLK-0036",
+      "section": "ET-JBP",
+      "date": "2024-07-14",
+      "startTime": "23:00",
+      "endTime": "05:00",
+      "type": "Traffic",
+      "line": "Both",
+      "status": "Approved",
+      "assignedJobs": ["TMS-2024-006"]
+    },
+    {
+      "id": "BLK-0032",
+      "section": "ET-JBP",
+      "date": "2024-07-10",
+      "startTime": "01:00",
+      "endTime": "05:00",
+      "type": "Traffic",
+      "line": "DN",
+      "status": "Completed",
+      "assignedJobs": ["TMS-2024-003"]
+    },
+    {
+      "id": "BLK-0029",
+      "section": "BPL-ET",
+      "date": "2024-07-09",
+      "startTime": "02:00",
+      "endTime": "04:00",
+      "type": "Non-Interlocked",
+      "line": "UP",
+      "status": "Completed",
+      "assignedJobs": ["SMMS-2024-003"]
+    },
+    {
+      "id": "BLK-0051",
+      "section": "ET-JBP",
+      "date": "2024-07-22",
+      "startTime": "00:00",
+      "endTime": "04:00",
+      "type": "Power",
+      "line": "UP",
+      "status": "Proposed",
+      "assignedJobs": ["TDMS-2024-003"]
+    },
+    {
+      "id": "BLK-0055",
+      "section": "BPL-ET",
+      "date": "2024-07-18",
+      "startTime": "01:00",
+      "endTime": "05:00",
+      "type": "Traffic",
+      "line": "Both",
+      "status": "Proposed",
+      "assignedJobs": []
+    },
+    {
+      "id": "BLK-0058",
+      "section": "ET-JBP",
+      "date": "2024-07-19",
+      "startTime": "23:30",
+      "endTime": "03:30",
+      "type": "Traffic",
+      "line": "UP",
+      "status": "Proposed",
+      "assignedJobs": []
+    }
+  ],
+  "sections": [
+    { "id": "BPL-ET", "name": "Bhopal - Itarsi", "stations": ["Bhopal (BPL)", "Habibganj (HBJ)", "Misrod", "Obaidullaganj (OBD)", "Budni", "Itarsi (ET)"] },
+    { "id": "ET-JBP", "name": "Itarsi - Jabalpur", "stations": ["Itarsi (ET)", "Hoshangabad", "Sohagpur", "Pipariya", "Narsinghpur", "Jabalpur (JBP)"] }
+  ],
+  "conflicts": [
+    {
+      "id": "CONF-001",
+      "type": "Overlap",
+      "description": "Block BLK-0042 overlaps with Express Train 12616 (scheduled 02:15-02:45)",
+      "severity": "High",
+      "affectedBlock": "BLK-0042",
+      "affectedTrain": "12616 GT Express",
+      "resolved": false
+    },
+    {
+      "id": "CONF-002",
+      "type": "Resource",
+      "description": "OHE team required for BLK-0045 already assigned to BLK-0036",
+      "severity": "Medium",
+      "affectedBlock": "BLK-0045",
+      "affectedTrain": null,
+      "resolved": false
+    },
+    {
+      "id": "CONF-003",
+      "type": "Overlap",
+      "description": "Block BLK-0055 conflicts with Rajdhani 12627 path (03:10-03:25)",
+      "severity": "Critical",
+      "affectedBlock": "BLK-0055",
+      "affectedTrain": "12627 Karnataka Rajdhani",
+      "resolved": false
+    }
+  ]
+}
