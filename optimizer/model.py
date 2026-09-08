@@ -22,11 +22,17 @@ class MaintenanceBlock:
     maintenance jobs can be queued for the same section (see
     add_no_overlap_between_maintenance_blocks in constraints.py, which makes
     sure jobs on the same section never overlap in time).
+
+    `priority` says how URGENT this maintenance job is. A higher number
+    means the optimizer will try harder to schedule it earlier -- but only
+    as a tie-breaker: avoiding train disruption always comes first (see
+    optimizer.py for exactly how the two are combined).
     """
 
     block_id: str
     maintenance_duration: int  # in minutes
     deadline: int              # maintenance must be FINISHED by this time (minutes from start of day)
+    priority: int = 1          # higher = more urgent to schedule early (default = neutral priority)
 
 
 @dataclass

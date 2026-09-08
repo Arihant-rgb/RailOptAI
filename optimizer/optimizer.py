@@ -12,8 +12,13 @@ Key ideas:
   - Maintenance blocks that share a block_id (same railway section) cannot
     overlap each other in time, since only one maintenance activity can
     occupy a track section at once.
-  - All soft-conflict costs (from every block) are summed into one shared
-    objective and minimized together.
+  - The objective has two parts, combined so disruption always matters more
+    than maintenance priority (see _build_objective for details):
+      1. Train disruption cost (unchanged from before) -- this is still the
+         main thing we minimize.
+      2. A small tie-breaking term that prefers finishing higher-priority
+         maintenance blocks earlier, but ONLY when it doesn't cost any
+         extra train disruption to do so.
 """
 
 from collections import defaultdict
@@ -102,10 +107,47 @@ class MaintenanceOptimizer:
         for interval_vars in intervals_by_railway_block.values():
             add_no_overlap_between_maintenance_blocks(model, interval_vars)
 
-        # 4. Objective: minimize total disruption across ALL blocks combined.
+        # 4. Objective (see _build_objective for the full explanation).
+        self._build_objective(all_overlap_terms)
+
+    def _build_objective(self, all_overlap_terms):
+        """
+        Build a single objective expression that:
+          (a) minimizes train disruption FIRST, and
+          (b) among schedules that disrupt trains equally, prefers finishing
+              higher-priority maintenance blocks earlier.
+
+        How (a) always wins over (b):
+        We multiply the disruption cost by a number (`priority_weight`) that
+        is guaranteed to be bigger than the biggest possible value of the
+        scheduling term (b) could ever reach. That way, the solver can never
+        "trade" one extra unit of train disruption for a better maintenance
+        schedule -- it will only use the scheduling term to choose between
+        schedules that already have the same, lowest possible disruption.
+        This is a standard trick called lexicographic weighting.
+        """
+        model = self.model
+
+        # (a) Train disruption cost -- exactly as before.
         if all_overlap_terms:
             disruption_cost = sum(overlap * train.priority for train, overlap in all_overlap_terms)
-            model.Minimize(disruption_cost)
+        else:
+            disruption_cost = 0
+
+        # (b) Scheduling term: for each block, priority * end_time.
+        # Minimizing this pushes HIGH-priority blocks towards a SMALL end
+        # time, i.e. finishing earlier. Low-priority blocks barely matter.
+        scheduling_cost = sum(
+            block.priority * self.block_ends[i] for i, block in enumerate(self.blocks)
+        )
+
+        # The scheduling term can never exceed horizon * (sum of all block
+        # priorities). Using a weight one bigger than that guarantees (a)
+        # always dominates (b).
+        total_block_priority = sum(block.priority for block in self.blocks)
+        priority_weight = self.horizon * total_block_priority + 1
+
+        model.Minimize(disruption_cost * priority_weight + scheduling_cost)
 
     def solve(self, max_time_in_seconds: float = 10.0) -> dict:
         self.build()
@@ -145,6 +187,7 @@ class MaintenanceOptimizer:
                 {
                     "block_index": i,
                     "block_id": block.block_id,
+                    "priority": block.priority,
                     "start_minutes": start_min,
                     "end_minutes": end_min,
                     "start_time": minutes_to_hhmm(start_min),
@@ -164,10 +207,13 @@ class MaintenanceOptimizer:
 
 if __name__ == "__main__":
     # Minimal demo / smoke test -- not part of the module's public API.
+    # SEC-1 has two jobs competing for the same section: a low-priority one
+    # and a high-priority one. Since they can't overlap each other, watch
+    # the high-priority job get the earlier slot.
     blocks = [
-        MaintenanceBlock(block_id="SEC-1", maintenance_duration=60, deadline=300),
-        MaintenanceBlock(block_id="SEC-1", maintenance_duration=45, deadline=300),  # same section, 2nd job
-        MaintenanceBlock(block_id="SEC-2", maintenance_duration=90, deadline=400),
+        MaintenanceBlock(block_id="SEC-1", maintenance_duration=60, deadline=300, priority=1),
+        MaintenanceBlock(block_id="SEC-1", maintenance_duration=45, deadline=300, priority=9),
+        MaintenanceBlock(block_id="SEC-2", maintenance_duration=90, deadline=400, priority=5),
     ]
 
     trains = [
