@@ -4,10 +4,8 @@ constraints.py
 Small, composable functions that add constraints to a CP-SAT model.
 
 Each function takes the `model` plus the relevant variables and does ONE
-job. Keeping them separate (rather than one big function in optimizer.py)
-is what makes it easy to add more railway rules later (e.g. minimum gap
-between maintenance blocks, crew availability, platform occupancy) without
-touching existing code.
+job. Keeping them separate makes it easy to add more railway rules later
+(e.g. crew availability, platform occupancy) without touching existing code.
 """
 
 from ortools.sat.python import cp_model
@@ -27,28 +25,26 @@ def add_time_bounds(model, block_start, block_end, duration, deadline, horizon):
     model.Add(block_end <= horizon)
 
 
-def add_hard_no_overlap_constraints(
-    model,
-    block_start,
-    block_end,
-    trains,
-    maintenance_block_id,
-):
+def add_hard_no_overlap_constraints(model, block_start, block_end, block_id, trains):
     """
-    For every train that CANNOT be affected (train.can_be_affected == False),
-    force the maintenance block to be entirely before or entirely after that
-    train's occupation window [arrival, departure).
+    For every train that is on the SAME railway block (train.block_id ==
+    block_id) and CANNOT be affected, force the maintenance block to be
+    entirely before or entirely after that train's occupation window
+    [arrival, departure).
 
-    This is a hard constraint: the solver is not allowed to violate it under
-    any circumstances. If it's impossible to satisfy for every such train,
-    the model will simply be infeasible.
+    Trains on a different railway block are ignored -- maintenance on one
+    section of track cannot conflict with a train running on another.
+
+    This is a hard constraint: if it's impossible to satisfy for every such
+    train, the model will simply be infeasible.
     """
-    for train in trains:
-        if train.can_be_affected or train.block_id != maintenance_block_id:
-            continue
+    relevant_trains = [
+        t for t in trains if t.block_id == block_id and not t.can_be_affected
+    ]
 
-        before = model.NewBoolVar(f"hard_before_{train.train_id}")
-        after = model.NewBoolVar(f"hard_after_{train.train_id}")
+    for train in relevant_trains:
+        before = model.NewBoolVar(f"hard_before_{block_id}_{train.train_id}")
+        after = model.NewBoolVar(f"hard_after_{block_id}_{train.train_id}")
 
         model.Add(block_end <= train.arrival).OnlyEnforceIf(before)
         model.Add(block_start >= train.departure).OnlyEnforceIf(after)
@@ -58,28 +54,26 @@ def add_hard_no_overlap_constraints(
         model.AddBoolOr([before, after])
 
 
-def add_soft_overlap_vars(
-    model,
-    block_start,
-    block_end,
-    trains,
-    maintenance_block_id,
-):
+def add_soft_overlap_vars(model, block_start, block_end, block_id, trains):
     """
-    For every train that CAN be affected, create a boolean variable that is
-    TRUE exactly when the maintenance block overlaps that train's window.
+    For every train that is on the SAME railway block and CAN be affected,
+    create a boolean variable that is TRUE exactly when the maintenance
+    block overlaps that train's window.
+
+    Trains on a different railway block are ignored, same as above.
 
     Returns a list of (train, overlap_var) pairs so the caller can build a
     priority-weighted objective and/or report which trains got disrupted.
     """
+    relevant_trains = [
+        t for t in trains if t.block_id == block_id and t.can_be_affected
+    ]
+
     overlap_info = []
 
-    for train in trains:
-        if not train.can_be_affected or train.block_id != maintenance_block_id:
-            continue
-
-        before = model.NewBoolVar(f"soft_before_{train.train_id}")
-        after = model.NewBoolVar(f"soft_after_{train.train_id}")
+    for train in relevant_trains:
+        before = model.NewBoolVar(f"soft_before_{block_id}_{train.train_id}")
+        after = model.NewBoolVar(f"soft_after_{block_id}_{train.train_id}")
 
         # Fully reify "before"/"after" in both directions so they can be
         # trusted inside an objective expression, not just as a one-way hint.
@@ -89,13 +83,28 @@ def add_soft_overlap_vars(
         model.Add(block_start >= train.departure).OnlyEnforceIf(after)
         model.Add(block_start < train.departure).OnlyEnforceIf(after.Not())
 
-        no_overlap = model.NewBoolVar(f"no_overlap_{train.train_id}")
+        no_overlap = model.NewBoolVar(f"no_overlap_{block_id}_{train.train_id}")
         # no_overlap == OR(before, after), fully reified.
         model.AddMaxEquality(no_overlap, [before, after])
 
-        overlap = model.NewBoolVar(f"overlap_{train.train_id}")
+        overlap = model.NewBoolVar(f"overlap_{block_id}_{train.train_id}")
         model.Add(overlap == 1 - no_overlap)
 
         overlap_info.append((train, overlap))
 
     return overlap_info
+
+
+def add_no_overlap_between_maintenance_blocks(model, interval_vars):
+    """
+    Prevent maintenance blocks that share the same railway block (section)
+    from overlapping each other in time -- only one maintenance activity can
+    occupy a given section at a time.
+
+    `interval_vars` should be the list of CP-SAT IntervalVar objects for
+    every maintenance block that sits on the same railway block. Blocks on
+    different railway blocks are independent and should be passed in
+    separate calls (or not at all, if there's only one per section).
+    """
+    if len(interval_vars) > 1:
+        model.AddNoOverlap(interval_vars)
