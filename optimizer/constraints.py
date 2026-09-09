@@ -11,18 +11,41 @@ job. Keeping them separate makes it easy to add more railway rules later
 from ortools.sat.python import cp_model
 
 
-def add_time_bounds(model, block_start, block_end, duration, deadline, horizon):
+def add_time_bounds(
+    model,
+    block_start,
+    block_end,
+    duration,
+    deadline,
+    horizon,
+    earliest_start=None,
+    latest_end=None,
+):
     """
     Basic timing rules for a single maintenance block:
       - it starts no earlier than time 0 and no later than the horizon
       - its end is exactly start + duration
       - it must finish by its deadline
+
+    Plus an OPTIONAL allowed time window:
+      - if `earliest_start` is given, the block cannot start before it
+      - if `latest_end` is given, the block cannot finish after it
+
+    Leaving earliest_start / latest_end as None (the default) skips those
+    two constraints entirely, so behavior is unchanged for blocks that
+    don't use a time window.
     """
     model.Add(block_start >= 0)
     model.Add(block_start <= horizon)
     model.Add(block_end == block_start + duration)
     model.Add(block_end <= deadline)
     model.Add(block_end <= horizon)
+
+    if earliest_start is not None:
+        model.Add(block_start >= earliest_start)
+
+    if latest_end is not None:
+        model.Add(block_end <= latest_end)
 
 
 def add_hard_no_overlap_constraints(model, block_start, block_end, block_id, trains):

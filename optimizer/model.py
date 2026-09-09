@@ -9,6 +9,7 @@ an API layer, or a database loader without any changes.
 """
 
 from dataclasses import dataclass
+from typing import Optional
 
 
 @dataclass
@@ -27,12 +28,20 @@ class MaintenanceBlock:
     means the optimizer will try harder to schedule it earlier -- but only
     as a tie-breaker: avoiding train disruption always comes first (see
     optimizer.py for exactly how the two are combined).
+
+    `earliest_start` / `latest_end` are an OPTIONAL allowed time window for
+    this specific maintenance job (e.g. "only allowed to happen overnight,
+    between 22:00 and 05:00"). Leave them as None if the job has no such
+    restriction -- the block will then only be limited by its duration and
+    deadline, exactly as before this feature was added.
     """
 
     block_id: str
     maintenance_duration: int  # in minutes
     deadline: int              # maintenance must be FINISHED by this time (minutes from start of day)
     priority: int = 1          # higher = more urgent to schedule early (default = neutral priority)
+    earliest_start: Optional[int] = None  # maintenance cannot START before this time, if set
+    latest_end: Optional[int] = None      # maintenance cannot FINISH after this time, if set
 
 
 @dataclass

@@ -22,6 +22,7 @@ Key ideas:
 """
 
 from collections import defaultdict
+from dataclasses import replace
 
 from ortools.sat.python import cp_model
 
@@ -77,7 +78,14 @@ class MaintenanceOptimizer:
             )
 
             add_time_bounds(
-                model, start, end, block.maintenance_duration, block.deadline, self.horizon
+                model,
+                start,
+                end,
+                block.maintenance_duration,
+                block.deadline,
+                self.horizon,
+                earliest_start=block.earliest_start,
+                latest_end=block.latest_end,
             )
 
             self.block_starts.append(start)
@@ -205,24 +213,107 @@ class MaintenanceOptimizer:
         }
 
 
+def update_train_schedule(trains, train_id, new_arrival=None, new_departure=None):
+    """
+    Return a NEW list of trains where the train matching `train_id` has an
+    updated arrival and/or departure time (e.g. because it got delayed).
+
+    The original `trains` list is NOT modified -- this makes it easy to
+    keep the "before" version around for comparison, exactly like the demo
+    below does. Pass only the values that actually changed; leave the other
+    one as None to keep that train's existing time.
+    """
+    updated_trains = []
+
+    for train in trains:
+        if train.train_id == train_id:
+            changes = {}
+            if new_arrival is not None:
+                changes["arrival"] = new_arrival
+            if new_departure is not None:
+                changes["departure"] = new_departure
+            train = replace(train, **changes)  # makes a modified copy, doesn't mutate the original
+        updated_trains.append(train)
+
+    return updated_trains
+
+
+def replan_schedule(blocks, trains, horizon=None, max_time_in_seconds=10.0):
+    """
+    Dynamic replanning, MVP version.
+
+    The idea behind "dynamic replanning" is simple: something in the real
+    world changed (a train got delayed, added, or cancelled), so we take the
+    LATEST maintenance jobs and the LATEST train information and run the
+    optimizer again, from scratch, to get an up-to-date schedule.
+
+    This function does NOT add any new optimization logic of its own -- it
+    just builds a normal MaintenanceOptimizer with whatever `blocks` and
+    `trains` it's given, and solves it. Every existing rule (priority,
+    time windows, hard/soft train constraints, same-section non-overlap,
+    deadlines) is still fully enforced, because underneath it's the exact
+    same model being built and solved as before.
+
+    Think of it as: "run the planner again, but with today's information."
+    """
+    optimizer = MaintenanceOptimizer(blocks, trains, horizon=horizon)
+    return optimizer.solve(max_time_in_seconds=max_time_in_seconds)
+
+
+
 if __name__ == "__main__":
-    # Minimal demo / smoke test -- not part of the module's public API.
-    # SEC-1 has two jobs competing for the same section: a low-priority one
-    # and a high-priority one. Since they can't overlap each other, watch
-    # the high-priority job get the earlier slot.
+    # -----------------------------------------------------------------
+    # Small helper just for printing -- not part of the module's API.
+    # -----------------------------------------------------------------
+    def print_schedule(label, result):
+        print(f"\n--- {label} ---")
+        if not result["feasible"]:
+            print(result["message"])
+            return
+        for b in result["blocks"]:
+            print(b)
+        print("Total disruption cost:", result["total_disruption_cost"])
+
+    # -----------------------------------------------------------------
+    # 1. Set up the maintenance jobs. These don't change during this demo --
+    #    only the train information will change, to simulate a real delay.
+    # -----------------------------------------------------------------
     blocks = [
         MaintenanceBlock(block_id="SEC-1", maintenance_duration=60, deadline=300, priority=1),
-        MaintenanceBlock(block_id="SEC-1", maintenance_duration=45, deadline=300, priority=9),
-        MaintenanceBlock(block_id="SEC-2", maintenance_duration=90, deadline=400, priority=5),
+        # This job must start at 100 or later, and is high priority (9) --
+        # watch it move to an earlier slot once the train's delay opens one up.
+        MaintenanceBlock(block_id="SEC-1", maintenance_duration=45, deadline=300, priority=9, earliest_start=100),
+        # Independent section -- included to show it is unaffected by what
+        # happens on SEC-1 below.
+        MaintenanceBlock(
+            block_id="SEC-2", maintenance_duration=90, deadline=400, priority=5,
+            earliest_start=120, latest_end=360,
+        ),
     ]
 
+    # -----------------------------------------------------------------
+    # 2. Set up the ORIGINAL train information and get the ORIGINAL schedule.
+    # -----------------------------------------------------------------
     trains = [
-        Train(train_id="EXP-101", block_id="SEC-1", arrival=0, departure=50, priority=10, can_be_affected=False),
+        Train(train_id="EXP-101", block_id="SEC-1", arrival=120, departure=150, priority=10, can_be_affected=False),
         Train(train_id="PASS-202", block_id="SEC-1", arrival=200, departure=260, priority=5),
         Train(train_id="LOCAL-303", block_id="SEC-2", arrival=100, departure=160, priority=2),
     ]
 
-    result = MaintenanceOptimizer(blocks, trains).solve()
-    for r in result["blocks"]:
-        print(r)
-    print("Total disruption cost:", result.get("total_disruption_cost"))
+    initial_result = replan_schedule(blocks, trains)
+    print_schedule("Initial schedule (EXP-101 on time: 120-150)", initial_result)
+
+    # -----------------------------------------------------------------
+    # 3. The railway situation changes: EXP-101 gets delayed.
+    #    Everything else (maintenance jobs, other trains) stays the same --
+    #    we only update EXP-101's arrival/departure.
+    # -----------------------------------------------------------------
+    delayed_trains = update_train_schedule(
+        trains, train_id="EXP-101", new_arrival=160, new_departure=190
+    )
+
+    # -----------------------------------------------------------------
+    # 4. Replan: run the SAME optimizer again with the UPDATED train data.
+    # -----------------------------------------------------------------
+    new_result = replan_schedule(blocks, delayed_trains)
+    print_schedule("New schedule after EXP-101 is delayed to 160-190", new_result)
