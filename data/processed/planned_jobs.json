@@ -1,0 +1,66 @@
+[
+  {
+    "job_id": "TMS001",
+    "block_id": "B017",
+    "section_id": "S11",
+    "department": "TMS",
+    "priority": "Critical",
+    "estimated_duration_hours": 1
+  },
+  {
+    "job_id": "SM004",
+    "block_id": "B007",
+    "section_id": "S08",
+    "department": "SMMS",
+    "priority": "High",
+    "estimated_duration_hours": 1
+  },
+  {
+    "job_id": "SM002",
+    "block_id": "B004",
+    "section_id": "S07",
+    "department": "SMMS",
+    "priority": "High",
+    "estimated_duration_hours": 2
+  },
+  {
+    "job_id": "TD006",
+    "block_id": "B006",
+    "section_id": "S08",
+    "department": "TDMS",
+    "priority": "High",
+    "estimated_duration_hours": 1
+  },
+  {
+    "job_id": "TMS004",
+    "block_id": "B016",
+    "section_id": "S11",
+    "department": "TMS",
+    "priority": "High",
+    "estimated_duration_hours": 1
+  },
+  {
+    "job_id": "TMS005",
+    "block_id": "B018",
+    "section_id": "S11",
+    "department": "TMS",
+    "priority": "High",
+    "estimated_duration_hours": 2
+  },
+  {
+    "job_id": "TD008",
+    "block_id": "B003",
+    "section_id": "S06",
+    "department": "TDMS",
+    "priority": "High",
+    "estimated_duration_hours": 2
+  },
+  {
+    "job_id": "TD004",
+    "block_id": "B004",
+    "section_id": "S07",
+    "department": "TDMS",
+    "priority": "Medium",
+    "estimated_duration_hours": 1
+  }
+]

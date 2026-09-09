@@ -1,0 +1,10 @@
+activity_type_1,activity_type_2,compatible,shared_resource
+Track Repair,Signal Inspection,true,false
+Track Repair,OHE Work,true,false
+Track Inspection,Signal Repair,true,false
+Signal Repair,OHE Isolation,false,true
+Track Repair,Point Machine Repair,false,true
+OHE Work,Signal Inspection,true,false
+Track Repair,Track Repair,false,true
+Signal Repair,Signal Repair,false,true
+OHE Isolation,OHE Isolation,false,true

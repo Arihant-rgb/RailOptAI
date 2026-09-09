@@ -1,10 +1,16 @@
 import express from 'express';
-import pool, { isPostgresConnected, readMockData, writeMockData } from '../config/db.js';
+import pool, { isPostgresConnected, readRealData, writeMockData } from '../config/db.js';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const router = express.Router();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const jobsFilePath = path.join(__dirname, '../../data/processed/maintenance_jobs_unified.json');
 
-// GET /api/maintenance
-// Supports query filters: department, section, priority, status
+// ─── GET /api/maintenance ────────────────────────────────────────────────────
+// Query filters: department, section, priority, status
 router.get('/', async (req, res) => {
   try {
     const { department, section, priority, status } = req.query;
@@ -12,78 +18,48 @@ router.get('/', async (req, res) => {
     if (isPostgresConnected()) {
       let query = 'SELECT * FROM maintenance_jobs WHERE 1=1';
       const values = [];
-
-      if (department) {
-        values.push(department);
-        query += ` AND department = $${values.length}`;
-      }
-      if (section) {
-        values.push(section);
-        query += ` AND section_id = $${values.length}`;
-      }
-      if (priority) {
-        values.push(priority);
-        query += ` AND priority = $${values.length}`;
-      }
-      if (status) {
-        values.push(status);
-        query += ` AND status = $${values.length}`;
-      }
-
+      if (department) { values.push(department); query += ` AND department = $${values.length}`; }
+      if (section)    { values.push(section);    query += ` AND section_id = $${values.length}`; }
+      if (priority)   { values.push(priority);   query += ` AND priority = $${values.length}`; }
+      if (status)     { values.push(status);     query += ` AND status = $${values.length}`; }
       query += ' ORDER BY priority_score DESC';
       const result = await pool.query(query, values);
       return res.json(result.rows);
-    } else {
-      const mock = readMockData();
-      let jobs = mock.maintenanceJobs || [];
-
-      if (department) {
-        jobs = jobs.filter(j => j.department.toLowerCase() === department.toLowerCase());
-      }
-      if (section) {
-        jobs = jobs.filter(j => j.section_id.toLowerCase() === section.toLowerCase());
-      }
-      if (priority) {
-        jobs = jobs.filter(j => j.priority.toLowerCase() === priority.toLowerCase());
-      }
-      if (status) {
-        jobs = jobs.filter(j => j.status.toLowerCase() === status.toLowerCase());
-      }
-
-      return res.json(jobs);
     }
+
+    const data = readRealData();
+    let jobs = data.maintenanceJobs;
+    if (department) jobs = jobs.filter(j => j.department?.toLowerCase() === department.toLowerCase());
+    if (section)    jobs = jobs.filter(j => j.section_id?.toLowerCase() === section.toLowerCase());
+    if (priority)   jobs = jobs.filter(j => j.priority?.toLowerCase() === priority.toLowerCase());
+    if (status)     jobs = jobs.filter(j => j.status?.toLowerCase() === status.toLowerCase());
+    return res.json(jobs);
   } catch (error) {
     console.error('Error fetching maintenance jobs:', error);
     res.status(500).json({ error: 'Failed to fetch maintenance jobs' });
   }
 });
 
-// GET /api/maintenance/:id
+// ─── GET /api/maintenance/:id ────────────────────────────────────────────────
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-
     if (isPostgresConnected()) {
       const result = await pool.query('SELECT * FROM maintenance_jobs WHERE job_id = $1', [id]);
-      if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Job not found' });
-      }
+      if (result.rows.length === 0) return res.status(404).json({ error: 'Job not found' });
       return res.json(result.rows[0]);
-    } else {
-      const mock = readMockData();
-      const job = (mock.maintenanceJobs || []).find(j => j.job_id === id);
-      if (!job) {
-        return res.status(404).json({ error: 'Job not found' });
-      }
-      return res.json(job);
     }
+    const data = readRealData();
+    const job = data.maintenanceJobs.find(j => j.job_id === id);
+    if (!job) return res.status(404).json({ error: 'Job not found' });
+    return res.json(job);
   } catch (error) {
     console.error('Error fetching job details:', error);
     res.status(500).json({ error: 'Failed to fetch job details' });
   }
 });
 
-// POST /api/maintenance (Add/Update Job)
+// ─── POST /api/maintenance ───────────────────────────────────────────────────
 router.post('/', async (req, res) => {
   try {
     const newJob = req.body;
@@ -99,21 +75,9 @@ router.post('/', async (req, res) => {
           power_block_required, asset_impact, delay_risk, priority_score, priority, status
         ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
         ON CONFLICT (job_id) DO UPDATE SET
-          department = EXCLUDED.department,
-          section_id = EXCLUDED.section_id,
-          asset_id = EXCLUDED.asset_id,
-          asset_type = EXCLUDED.asset_type,
-          defect_type = EXCLUDED.defect_type,
-          maintenance_type = EXCLUDED.maintenance_type,
-          severity = EXCLUDED.severity,
-          overdue_days = EXCLUDED.overdue_days,
-          estimated_duration = EXCLUDED.estimated_duration,
-          power_block_required = EXCLUDED.power_block_required,
-          asset_impact = EXCLUDED.asset_impact,
-          delay_risk = EXCLUDED.delay_risk,
+          status = EXCLUDED.status,
           priority_score = EXCLUDED.priority_score,
-          priority = EXCLUDED.priority,
-          status = EXCLUDED.status
+          priority = EXCLUDED.priority
         RETURNING *;
       `;
       const values = [
@@ -126,17 +90,16 @@ router.post('/', async (req, res) => {
       ];
       const result = await pool.query(query, values);
       return res.status(201).json(result.rows[0]);
-    } else {
-      const mock = readMockData();
-      const existingIdx = mock.maintenanceJobs.findIndex(j => j.job_id === newJob.job_id);
-      if (existingIdx >= 0) {
-        mock.maintenanceJobs[existingIdx] = { ...mock.maintenanceJobs[existingIdx], ...newJob };
-      } else {
-        mock.maintenanceJobs.push(newJob);
-      }
-      writeMockData(mock);
-      return res.status(201).json(newJob);
     }
+
+    // File-based write: update maintenance_jobs_unified.json
+    let jobs = [];
+    try { jobs = JSON.parse(fs.readFileSync(jobsFilePath, 'utf8')); } catch (_) {}
+    const idx = jobs.findIndex(j => j.job_id === newJob.job_id);
+    if (idx >= 0) jobs[idx] = { ...jobs[idx], ...newJob };
+    else jobs.push(newJob);
+    fs.writeFileSync(jobsFilePath, JSON.stringify(jobs, null, 2), 'utf8');
+    return res.status(201).json(newJob);
   } catch (error) {
     console.error('Error saving maintenance job:', error);
     res.status(500).json({ error: 'Failed to save maintenance job' });

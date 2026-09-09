@@ -1,0 +1,11 @@
+job_id,department,section_id,asset_id,asset_type,defect_type,failure_date,severity,maintenance_type,overdue_days,estimated_duration,status
+SM001,SMMS,S03,SIG-BNCE-01,Signal,Cable Fault,2026-08-30,3,Corrective,0,1,Pending
+SM002,SMMS,S07,SIG-YPR-02,Signal,Cable Fault,2026-09-03,5,Corrective,3,2,Pending
+SM003,SMMS,S02,INT-BWT-03,Interlocking,Interlocking Fault,2026-09-04,3,Corrective,0,2,Pending
+SM004,SMMS,S08,INT-YNK-04,Interlocking,Interlocking Fault,2026-09-03,4,Corrective,12,1,Pending
+SM005,SMMS,S09,SIG-BAND-05,Signal,Signal Failure,2026-08-26,4,Corrective,0,1,Pending
+SM006,SMMS,S05,POI-SBC-06,Point Machine,Point Failure,2026-09-04,4,Corrective,6,1,Pending
+SM007,SMMS,S01,TRA-KJM-07,Track Circuit,Track Circuit Failure,2026-08-29,2,Corrective,0,1,Pending
+SM008,SMMS,S01,INT-KJM-08,Interlocking,Interlocking Fault,2026-09-04,5,Corrective,0,1,Pending
+SM009,SMMS,S03,SIG-BNCE-09,Signal,Signal Failure,2026-08-28,3,Corrective,0,3,Pending
+SM010,SMMS,S02,SIG-BWT-10,Signal,Signal Failure,2026-08-31,3,Corrective,1,1,Pending

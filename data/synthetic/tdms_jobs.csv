@@ -1,0 +1,9 @@
+job_id,department,section_id,asset_id,asset_type,defect_type,inspection_date,severity,overdue_days,estimated_duration,power_block_required,status
+TD001,TDMS,S11,OHE-S11-01,OHE,Tension Fault,2026-09-01,3,4,3,true,Pending
+TD002,TDMS,S05,OHE-S05-02,OHE,Insulator Issue,2026-08-30,4,7,1,true,Pending
+TD003,TDMS,S04,OHE-S04-03,OHE,Wire Defect,2026-09-03,4,4,2,true,Pending
+TD004,TDMS,S07,OHE-S07-04,OHE,Dropper Damage,2026-08-29,3,0,1,true,Pending
+TD005,TDMS,S06,OHE-S06-05,OHE,Insulator Issue,2026-09-04,3,4,2,true,Pending
+TD006,TDMS,S08,OHE-S08-06,OHE,Wire Defect,2026-08-28,4,4,1,true,Pending
+TD007,TDMS,S04,OHE-S04-07,OHE,Dropper Damage,2026-08-27,5,2,3,true,Pending
+TD008,TDMS,S06,OHE-S06-08,OHE,Dropper Damage,2026-09-01,4,2,2,true,Pending

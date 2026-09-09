@@ -1,0 +1,210 @@
+train_id,train_name,train_type,zone,from_station,to_station
+T02779,Vasco da Gama Bangalore Link Express,Superfast,SWR,VSG,SBC
+T06201,Mysore-Sainagar Shirdi Special,Express,SWR,MYS,SNSI
+T06202,Sainagar Shirdi - Mysore Special,Express,SWR,SNSI,MYS
+T06591,Yesvantpur-Hosur Passenger Special,Passenger,SWR,YPR,HSRA
+T06592,Hosur-Yesvantpur Passenger,Passenger,SWR,HSRA,YPR
+T06593,Yesvantpur-Hosur Passenger Special,Passenger,SWR,YPR,HSRA
+T06594,Hosur-Yesvantpur Passenger Special,Passenger,SWR,HSRA,YPR
+T06595,Yesvantpur-Devanhalli Special,Passenger,SWR,YPR,DHL
+T06596,Devanahalli-Yesvantpur Special,Passenger,SWR,DHL,YPR
+T06621,Coimbatore-Yesvantpur SF Special,Superfast,SR,CBE,YPR
+T06622,Yesvantpur-Coimbatore SF Special,Superfast,SR,YPR,CBE
+T08004,Mysore - Howrah Special,Express,SER,MYS,HWH
+T08469,Puri-Bangalore weekly Garib Rath special,Garib Rath,ECoR,PURI,SBC
+T08470,Bangalore-Puri Garib Rath Special,Garib Rath,ECoR,SBC,PURI
+T09405,Ahmedabad Yesvantpur (Weekly) Special,Express,WR,ADI,YPR
+T09406,Yeshwantpur-Ahmedabad Special,Express,WR,YPR,ADI
+T11013,Mumbai LTT-Coimbatore Express,Express,CR,LTT,CBE
+T11014,Coimbatore Mumbai LTT Express,Express,CR,CBE,LTT
+T12007,CHENNAI CENT - MYSORE Shatabdi Express,Shatabdi,SR,MAS,MYS
+T12008,MYSORE - CHENNAI CENT Shatabdi Express,Shatabdi,SR,MYS,MAS
+T12027,CHENNAI CENT - BANGALORE CITY Shatabdi Exp,Shatabdi,SWR,MAS,SBC
+T12028,BANGALORE CITY - CHENNAI CENT Shatabdi Exp,Shatabdi,SWR,SBC,MAS
+T12079,Bangalore City-Hubli Jan Shatabdi,Jan Shatabdi,SWR,SBC,UBL
+T12080,Hubli Bangalore Janshatabdi,Jan Shatabdi,SWR,UBL,SBC
+T12213,Yeswantpur-Delhi Sarai Rohilla AC Duronto Express,Duronto,NR,YPR,DEE
+T12214,Delhi Sarai Rohilla-Yesvantpur AC Duronto Express,Duronto,NR,DEE,YPR
+T12245,HOWRAH - YESVANTPUR AC Duronto Exp,Duronto,SER,HWH,YPR
+T12246,YESVANTPUR - HOWRAH AC Duronto Exp,Duronto,SER,YPR,HWH
+T12251,Wainganga express,Superfast,SWR,YPR,KRBA
+T12252,Wainganga express,Superfast,SWR,KRBA,YPR
+T12253,YESVANTPUR - BHAGALPUR Anga SF Exp,Superfast,SWR,YPR,BGP
+T12254,BHAGALPUR - YESVANTPUR Anga SF Exp,Superfast,SWR,BGP,YPR
+T12257,Yesvantapur Kochuveli Garib Rath Express,Garib Rath,SWR,YPR,KCVL
+T12258,Kochuveli-Yesvantpur Garib Rath,Garib Rath,SWR,KCVL,YPR
+T12291,YESVANTPUR - CHENNAI SF Exp,Superfast,SWR,YPR,MAS
+T12292,CHENNAI - YESVANTPUR SF Exp,Superfast,SWR,MAS,YPR
+T12295,BANGALORE - PATLIPUTRA Sanghamitra SF Exp,Superfast,SWR,SBC,PPTA
+T12296,PATLIPUTRA - BANGALORE Sanghamitra SF Exp,Superfast,SWR,PPTA,SBC
+T12429,Bangalore - Hazrat Nizamuddin Rajdhani Express,Rajdhani,NR,SBC,NZM
+T12430,Delhi H Nizamuddin-Bangalore Rajdhani Express,Rajdhani,NR,NZM,SBC
+T12493,Bangalore-Hazrat Nizammudin Rajdhani Express,Rajdhani,NR,SBC,NZM
+T12494,Hazrat Nizamuddin-Bangalore Rajdhani Express,Rajdhani,NR,NZM,SBC
+T12509,BENGALURU - GUWAHATI (Kaziranga) SF Express,Superfast,NER,BNC,GHY
+T12510,GUWAHATI - BENGALURU (Kaziranga) SF Express,Superfast,NFR,GHY,SBC
+T12539,YESVANTPUR - LUCKNOW SF Exp,Superfast,SWR,YPR,LKO
+T12540,LUCKNOW - YESVANTPUR SF Exp,Superfast,SWR,LKO,YPR
+T12543,Yesvantpur-Tirupati Tri Weekly Intercity,Superfast,SR,YPR,TPTY
+T12544,Tirupati-Yesvantpur Tri Weekly SF Intercity,Superfast,SR,TPTY,YPR
+T12577,DARBHANGA - MYSORE BAGMATI SF Exp,Superfast,ECR,DBG,MYS
+T12578,MYSORE - DARBHANGA BAGMATI SF Exp,Superfast,ECR,MYS,DBG
+T12607,CHENNAI CENTRAL - BANGALORE Lalbagh Exp,Superfast,SWR,MAS,SBC
+T12608,BANGALORE - CHENNAI CENTRAL Lalbagh Exp,Superfast,SWR,SBC,MAS
+T12609,CHENNAI CENT - BANGALORE SF Intercity Exp,Superfast,SWR,MAS,SBC
+T12610,BANGALORE - CHENNAI CENT SF Intercity Exp,Superfast,SWR,SBC,MAS
+T12627,Karnataka Express,Superfast,SWR,SBC,NDLS
+T12628,Karnataka Express,Superfast,SWR,NDLS,SBC
+T12639,CHENNAI CENT - BANGALORE Brindavan Exp,Superfast,SR,MAS,SBC
+T12640,BANGALORE - CHENNAI CENT Brindavan Exp,Superfast,SR,SBC,MAS
+T12647,Kongu Express,Superfast,SR,CBE,NZM
+T12648,Kongu Express,Superfast,SR,NZM,CBE
+T12649,Karnataka Sampark Kranti Express,Sampark Kranti,SWR,YPR,NZM
+T12650,Karnataka Sampark Kranti Express,Sampark Kranti,SWR,NZM,YPR
+T12657,CHENNAI - BANGALORE Mail,Superfast,SWR,MAS,SBC
+T12658,BANGALORE - CHENNAI Mail,Superfast,SWR,SBC,MAS
+T12677,Bangalore City - Ernakulam Intercity SF Express,Superfast,SR,SBC,ERS
+T12678,Ernakulam-BangaloreCity Intercity Express,Superfast,SR,ERS,SBC
+T12683,ERNAKULAM - BANGALORE SF Exp,Superfast,SR,ERS,SBC
+T12684,BANGALORE - ERNAKULAM SF Exp,Superfast,SR,SBC,ERS
+T12691,CHENNAI - SSP NILAYAM SF Exp,Superfast,SR,MAS,SSPN
+T12692,SSP NILAYAM - CHENNAI SF Exp,Superfast,SR,SSPN,MAS
+T12725,Siddhaganga Intercity Express,Superfast,SWR,SBC,DWR
+T12726,Siddhaganga InterCity Express,Superfast,SWR,DWR,SBC
+T12735,SECUNDERABAD - YESVANTPUR Garib Rath Exp,Special,,SC,YPR
+T12736,YESVANTPUR - SECUNDERABAD Garib Rath Exp,Special,,YPR,SC
+T12777,HUBLI - TRIVANDRUM KOCHUVELI SF Exp,Superfast,SWR,UBL,KCVL
+T12778,TRIVANDRUM KOCHUVELI - HUBLI SF Exp,Superfast,SWR,KCVL,UBL
+T12785,Kacheguda-Bangalore SF Express,Superfast,SCR,KCG,SBC
+T12786,Bangalore-Kacheguda SF Express,Superfast,SCR,SBC,KCG
+T12835,HATIA - YESVANTPUR SF Exp,Superfast,SER,HTE,YPR
+T12836,YESVANTPUR - HATIA SF Exp,Superfast,SER,YPR,HTE
+T12845,BHUBANESWAR - BENGALURU CANTT SF Exp,Superfast,ECoR,BBS,BNC
+T12846,BENGALURU CANTT - BHUBANESWAR SF Exp,Superfast,SER,BNC,BBS
+T12863,HOWRAH - YESVANTPUR SF Exp,Superfast,SER,HWH,YPR
+T12864,YESVANTPUR - HOWRAH SF Exp,Superfast,SER,YPR,HWH
+T12975,Mysore-Jaipur SF Express,Superfast,NWR,MYS,JP
+T12976,Jaipur-Mysore SF Express,Superfast,NWR,JP,MYS
+T15015,GORAKHPUR - YESVANTPUR Exp,Express,NER,GKP,YPR
+T15016,YESVANTPUR - GORAKHPUR Exp,Express,NER,YPR,GKP
+T15023,GORAKHPUR - YESVANTPUR Exp,Express,NER,GKP,YPR
+T15024,YESVANTPUR - GORAKHPUR Exp,Express,NER,YPR,GKP
+T15227,YESVANTPUR - MUZAFFARPUR Weekly Exp,Express,ECR,YPR,MFP
+T15228,MUZAFFARPUR - YESVANTPUR Weekly Exp,Express,ECR,MFP,YPR
+T15901,BENGALURU - NEW TINSUKIA Weekly Exp,Express,NFR,SBC,NTSK
+T15902,DIBRUGARH - BENGALURU CITY Weekly Exp,Express,NFR,DBRG,SBC
+T16201,Bangalore City-Shimoga InterCity,Express,SWR,SBC,SMET
+T16202,Shimoga-Bangalore City InterCity,Express,SWR,SMET,SBC
+T16209,Ajmer-Mysore Express,Express,SWR,AII,MYS
+T16210,Mysore-Ajmer Express,Express,SWR,MYS,AII
+T16221,Kaveri Express,Express,SWR,MYS,MAS
+T16222,Kaveri Express,Express,SWR,MAS,MYS
+T16227,Bangalore-Shimoga Express,Express,SWR,SBC,SMET
+T16228,Shimoga-Bangalore Express,Express,SWR,SMET,SBC
+T16231,Mayiladuturai Mysore Express,Express,SWR,MV,MYS
+T16232,Mysore Mayiladuturai Express,Express,SWR,MYS,MV
+T16315,BANGALORE - KOCHUVELI Exp,Express,SR,SBC,KCVL
+T16316,KOCHUVELI - BANGALORE Exp,Express,SR,KCVL,SBC
+T16321,Bangalore Tiruvananthapuram Weekly Express,Express,SR,SBC,TVC
+T16322,Tiruvananthapuram Bangalore Weekly Express,Express,SR,TVC,SBC
+T16331,MUMBAI CST - TRIVANDRUM Exp,Express,SR,CSTM,TVC
+T16332,TRIVANDRUM - MUMBAI CST Exp,Express,SR,TVC,CSTM
+T16339,MUMBAI CST - NAGERCOIL Exp,Express,SR,CSTM,NCJ
+T16340,NAGERCOIL - MUMBAI CST Exp,Express,SR,NCJ,CSTM
+T16501,Ahmedabad Bangalore Express,Express,SWR,ADI,SBC
+T16502,Bangalore - Ahmedabad (Weekly) Express,Express,SWR,SBC,ADI
+T16505,GANDHIDHAM - BANGALORE Exp,Express,SWR,GIMB,SBC
+T16506,BANGALORE - GANDHIDHAM Exp,Express,SWR,SBC,GIMB
+T16507,BHAGAT KI KOTHI - BANGALORE Exp,Express,SWR,BGKT,SBC
+T16508,BANGALORE - BHAGAT KI KOTHI Exp,Express,SWR,SBC,JU
+T16517,Yeshvantapur-Kannur Express,Express,SWR,YPR,CAN
+T16518,Kannur-Yesvantpur Express,Express,SWR,CAN,YPR
+T16519,JOLARPETTAI - BANGALORE Exp,Express,SWR,JTJ,SBC
+T16520,BANGALORE - JOLARPETTAI Exp,Express,SWR,SBC,JTJ
+T16521,Bangarpet-Bangalore Express,Express,SWR,BWT,SBC
+T16522,Bangalore Bangarpet Express,Express,SWR,SBC,BWT
+T16525,KANNIYAKUMARI - BANGALORE Island Exp,Express,SWR,CAPE,SBC
+T16526,BANGALORE - KANNIYAKUMARI Island Exp,Express,SWR,SBC,CAPE
+T16527,Yesvantpur - Kannur Express,Express,SWR,YPR,CAN
+T16528,Kannur - Yeshvantpur Express,Express,SWR,CAN,YPR
+T16529,Udyan Express,Express,SWR,CSTM,SBC
+T16530,Udyan Express,Express,SWR,SBC,CSTM
+T16531,Garib Nawaz Express,Express,SWR,AII,YPR
+T16532,Garib Nawaz Express,Express,SWR,YPR,AII
+T16533,BHAGAT KI KOTHI - BANGALORE CITY Exp,Express,SWR,BGKT,SBC
+T16534,BANGALORE CITY - JODHPUR Exp,Express,SWR,SBC,JU
+T16537,Bangalore-Nagercoil Weekly Express,Express,SWR,SBC,NCJ
+T16538,Nagercoil-Bangalore Express,Express,SWR,NCJ,SBC
+T16559,Mysore-Yeshvantapur Express,Express,SWR,MYS,YPR
+T16560,Yeshvantapur-Mysore Express,Express,SWR,YPR,MYS
+T16589,Rani Chennamma Express,Express,SWR,SBC,KOP
+T16590,Rani Chennamma Express,Express,SWR,KOP,SBC
+T16591,Hampi Express,Express,SWR,UBL,SBC
+T16592,Hampi Express,Express,SWR,SBC,UBL
+T16593,Nanded-Bangalore Express,Express,SWR,NED,SBC
+T16594,Bangalore-Nanded Express,Express,SWR,SBC,NED
+T16613,RAJKOT - COIMBATORE Exp,Express,SR,RJT,CBE
+T16614,COIMBATORE - RAJKOT Exp,Express,SR,CBE,RJT
+T16731,Tuticorin Mysore Express,Express,SR,TN,MYS
+T16732,Mysore-Tuticorin Express,Express,SR,MYS,TN
+T17209,BANGALORE - KAKINADA TOWN Seshadri Exp,Express,SCR,SBC,CCT
+T17210,KAKINADA TOWN -BANGALORE Seshadri Exp,Express,SCR,CCT,SBC
+T17211,Machilipatnam Yeshvantapur Express,Express,SCR,MTM,YPR
+T17212,Machilipatnam Express,Express,SCR,YPR,MTM
+T17303,Malgudi Express,Express,SWR,MYS,YPR
+T17304,Malgudi Express,Express,SWR,YPR,MYS
+T17307,Basava Express,Express,SWR,YPR,BGK
+T17308,Basava Express,Express,SWR,BGK,YPR
+T17311,CHENNAI CENT - VASCO DA GAMA Exp,Express,SWR,MAS,VSG
+T17312,VASCO DA GAMA - CHENNAI CENT Exp,Express,SWR,VSG,MAS
+T17313,CHENNAI CENT - HUBLI Weekly Exp,Express,SWR,MAS,UBL
+T17314,HUBLI - CHENNAI CENT Weekly Exp,Express,SWR,UBL,MAS
+T17315,VASCO DA GAMA - VELANKANNI Weekly Exp,Express,SWR,VSG,VLNK
+T17316,VELANKANNI - VASCO DA GAMA Weekly Exp,Express,SWR,VLNK,VSG
+T17603,Prasanti Nilayam Express,Express,SCR,KCG,YPR
+T17604,Prashanti Nilayam Express,Express,SCR,YPR,KCG
+T18463,Prasanti Express,Express,ECoR,BBS,SBC
+T18464,Prasanti Express,Express,ECoR,SBC,BBS
+T19567,TUTICORIN - OKHA Exp,Express,WR,TN,OKHA
+T19568,OKHA - TUTICORIN Exp,Express,WR,OKHA,TN
+T22601,CHENNAI CENT - SAINAGAR SHIRDI SF Exp,Superfast,SR,MAS,SNSI
+T22602,SAINAGAR SHIRDI - CHENNAI CENT SF Exp,Superfast,SR,SNSI,MAS
+T22607,ERNAKULAM - BANGALORE Weekly SF Exp,Superfast,SR,ERS,SBC
+T22608,BANGALORE - ERNAKULAM Weekly SF Exp,Superfast,SR,SBC,ERS
+T22681,MYSORE - CHENNAI Weekly SF Exp,Superfast,SWR,MYS,MAS
+T22682,CHENNAI - MYSORE Weekly SF Exp,Superfast,SWR,MAS,MYS
+T56213,CHAMARAJANAGAR - TIRUPATI Fast Passenger,Passenger,SWR,CMNR,TPTY
+T56214,TIRUPATI - CHAMARAJANAGAR Fast Passenger,Passenger,SWR,TPTY,CMNR
+T56221,Bangalore Tumkur Passenger,Passenger,SWR,SBC,TK
+T56222,Tumkur Bangalore Passenger,Passenger,SWR,TK,SBC
+T56223,Bangalore Arisikere Passenger,Passenger,SWR,SBC,ASK
+T56224,Arisikere Bangalore Passenger,Passenger,SWR,ASK,SBC
+T56225,Bangalore Tumkur Passenger,Passenger,SWR,SBC,TK
+T56226,Tumkur Bangalore passenger,Passenger,SWR,TK,SBC
+T56227,Bangalore Shimoga Town Passenger,Passenger,SWR,SBC,SMET
+T56228,Shimoga Bangalore Passenger,Passenger,SWR,SMET,SBC
+T56241,Salem Yesvantpur passenger,Passenger,SWR,SA,YPR
+T56242,Yesvantpur Salem passenger,Passenger,SWR,YPR,SA
+T56261,ARAKKONAM - BANGALORE Passenger,Passenger,SWR,AJJ,SBC
+T56262,BANGALORE - ARAKKONAM Passenger,Passenger,SWR,SBC,AJJ
+T56503,Yesvantapur-Vijayawada Passenger,Passenger,SWR,YPR,BZA
+T56504,Vijayawada Yesvantapur Passenger,Passenger,SWR,BZA,YPR
+T56507,Swarna passenger Marikuppam Bangalore,Passenger,SWR,MKM,SBC
+T56508,Bangalore-Marikuppam Swarna Pass.,Passenger,SWR,SBC,MKM
+T56509,Marikuppam Bangalore Passenger,Passenger,SWR,MKM,SBC
+T56510,Bangalore Marikuppam passenger,Passenger,SWR,SBC,MKM
+T56513,Salem Bangalore passenger,Passenger,SWR,SA,SBC
+T56514,Bangalore Salem Passenger,Passenger,SWR,SBC,SA
+T56515,BANGALORE CITY - HUBLI Pass,Passenger,SWR,SBC,UBL
+T56516,HUBLI - BANGALORE CY Passenger,Passenger,SWR,UBL,SBC
+T56523,KSR BENGALURU CITY - HINDUPUR Passenger,Passenger,SWR,SBC,HUP
+T56524,HINDUPUR - KSR BENGALURU CITY Passenger,Passenger,SWR,HUP,SBC
+T56525,Bangalore Chik ballapur Passenger,Passenger,SWR,SBC,CBP
+T56526,Chik Ballapur Bangalore Passenger,Passenger,SWR,CBP,SBC
+T56909,Bangalore Hospet Passenger,Passenger,SWR,SBC,UBL
+T56910,Bangalore Passenger,Passenger,SWR,HPT,SBC
+T56912,Hubli Bangalore Passenger,Passenger,SWR,UBL,SBC
+T56913,Bangalore Hubli Fast Passenger,Passenger,SWR,SBC,UBL
+T56914,Hubli Bangalore passenger,Passenger,SWR,UBL,SBC
+T56918,Shimoga Bangalore Passenger,Passenger,SWR,SMET,SBC
+T56909-Slip,Bangalore Hospet Passenger Slip,Passenger,SWR,SBC,HPT

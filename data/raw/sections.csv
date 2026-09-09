@@ -1,0 +1,13 @@
+section_id,from_station,to_station,distance_km,electrified,observed_train_traversals
+S01,KJM,WFD,9.48,true,93
+S02,BWT,WFD,45.18,true,91
+S03,BNC,BNCE,2.25,true,86
+S04,BNCE,BYPL,3.73,true,86
+S05,BNC,SBC,3.83,true,83
+S06,BYPL,KJM,2.76,true,79
+S07,SBC,YPR,5.35,true,56
+S08,YNK,YPR,9.98,true,44
+S09,BAND,YPR,8.56,true,36
+S10,BAND,BYPL,3.0,true,36
+S11,BYPL,YNK,14.0,true,20
+S12,KJM,YNK,14.36,true,10

@@ -1,5 +1,5 @@
 import express from 'express';
-import pool, { isPostgresConnected, readMockData } from '../config/db.js';
+import pool, { isPostgresConnected, readRealData } from '../config/db.js';
 
 const router = express.Router();
 
@@ -13,17 +13,8 @@ router.get('/', async (req, res) => {
         return res.json(kpiData);
       }
     }
-
-    const mock = readMockData();
-    return res.json(mock.kpis || {
-      total_jobs: 30,
-      critical_jobs: 8,
-      scheduled_jobs: 22,
-      available_blocks: 15,
-      schedule_conflicts: 0,
-      block_utilization: 78,
-      cross_department_bundles: 4
-    });
+    const data = readRealData();
+    return res.json(data.kpis);
   } catch (error) {
     console.error('Error fetching KPIs:', error);
     res.status(500).json({ error: 'Failed to fetch KPIs' });

@@ -1,0 +1,10 @@
+{
+  "total_jobs": 30,
+  "critical_jobs": 3,
+  "scheduled_jobs": 8,
+  "pending_jobs": 22,
+  "available_blocks": 25,
+  "schedule_conflicts": 0,
+  "block_utilization": 23.7,
+  "cross_department_bundles": 1
+}
