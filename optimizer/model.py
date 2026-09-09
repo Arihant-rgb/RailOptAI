@@ -9,7 +9,7 @@ an API layer, or a database loader without any changes.
 """
 
 from dataclasses import dataclass
-from typing import Optional
+from typing import List, Optional
 
 
 @dataclass
@@ -18,11 +18,17 @@ class MaintenanceBlock:
     A maintenance activity that needs to be scheduled on a railway block
     (track section).
 
-    `block_id` identifies WHICH railway section this maintenance happens on.
-    It does not need to be unique across MaintenanceBlock instances -- several
-    maintenance jobs can be queued for the same section (see
-    add_no_overlap_between_maintenance_blocks in constraints.py, which makes
-    sure jobs on the same section never overlap in time).
+    `job_id` is the UNIQUE identifier of this specific maintenance job
+    (e.g. "TMS001"). It must not be reused by any other MaintenanceBlock.
+    This is what dependencies point at.
+
+    `block_id` identifies WHICH railway section this maintenance happens on
+    (e.g. "SEC-1"). Unlike `job_id`, it does NOT need to be unique --
+    several different maintenance jobs can all happen on the same section
+    (see add_no_overlap_between_maintenance_blocks in constraints.py, which
+    makes sure jobs on the same section never overlap in time). `block_id`
+    is also what trains are matched against: a train only ever conflicts
+    with maintenance that shares its `block_id`.
 
     `priority` says how URGENT this maintenance job is. A higher number
     means the optimizer will try harder to schedule it earlier -- but only
@@ -34,14 +40,23 @@ class MaintenanceBlock:
     between 22:00 and 05:00"). Leave them as None if the job has no such
     restriction -- the block will then only be limited by its duration and
     deadline, exactly as before this feature was added.
+
+    `dependencies` is an OPTIONAL list of other jobs' `job_id`s that must be
+    FINISHED before this job is allowed to start (e.g. a track inspection
+    must finish before track maintenance can begin). Leave it as None (or
+    an empty list) if this job has no ordering requirement. Dependencies
+    always refer to `job_id`, never `block_id` -- `block_id` can be shared
+    by several jobs, so it can't be used to point at one specific job.
     """
 
-    block_id: str
+    job_id: str                # unique identifier of THIS maintenance job
+    block_id: str               # railway section this job happens on (can repeat)
     maintenance_duration: int  # in minutes
     deadline: int              # maintenance must be FINISHED by this time (minutes from start of day)
     priority: int = 1          # higher = more urgent to schedule early (default = neutral priority)
     earliest_start: Optional[int] = None  # maintenance cannot START before this time, if set
     latest_end: Optional[int] = None      # maintenance cannot FINISH after this time, if set
+    dependencies: Optional[List[str]] = None  # job_ids that must finish before this one can start
 
 
 @dataclass

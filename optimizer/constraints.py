@@ -131,3 +131,84 @@ def add_no_overlap_between_maintenance_blocks(model, interval_vars):
     """
     if len(interval_vars) > 1:
         model.AddNoOverlap(interval_vars)
+
+
+def validate_dependencies(blocks):
+    """
+    Check that every MaintenanceBlock.dependencies entry is safe to use,
+    BEFORE any CP-SAT variables are created.
+
+    Dependencies refer to OTHER JOBS by their `job_id` -- NOT `block_id`.
+    `block_id` identifies a railway SECTION, and several jobs can share one,
+    so it can't be used to point at one specific job; `job_id` is meant to
+    be unique per job, which is exactly what a dependency needs.
+
+    Returns None if everything is fine. Returns a short, human-readable
+    error message (a string) if something is wrong -- the caller should
+    stop and report this instead of building the model.
+
+    Checks performed:
+      1. Every block's job_id must be unique (it's the primary identifier
+         for that one maintenance job).
+      2. Every dependency must point at a job_id that actually exists.
+      3. A job can't depend on itself.
+      4. No circular dependencies (e.g. A depends on B depends on A).
+    """
+    # 1. job_id must be unique across all blocks.
+    blocks_by_job_id = {}
+    for block in blocks:
+        if block.job_id in blocks_by_job_id:
+            return f"Duplicate job_id: '{block.job_id}' is used by more than one maintenance block."
+        blocks_by_job_id[block.job_id] = block
+
+    # 2 & 3: every dependency must point at a real, different job.
+    for block in blocks:
+        for dep_job_id in (block.dependencies or []):
+            if dep_job_id == block.job_id:
+                return f"Invalid dependency: job '{block.job_id}' cannot depend on itself."
+            if dep_job_id not in blocks_by_job_id:
+                return (
+                    f"Invalid dependency: job '{block.job_id}' depends on "
+                    f"unknown job_id '{dep_job_id}'."
+                )
+
+    # 4: no circular dependencies. Simple depth-first search, walking from
+    # each dependent job towards the jobs it depends on.
+    visiting = set()  # job_ids currently on the current search path
+    visited = set()   # job_ids already fully checked, safe to skip
+
+    def find_cycle(job_id, path):
+        if job_id in visiting:
+            cycle_str = " -> ".join(path + [job_id])
+            return cycle_str
+        if job_id in visited:
+            return None
+
+        visiting.add(job_id)
+        block = blocks_by_job_id[job_id]
+        for dep_job_id in (block.dependencies or []):
+            cycle_str = find_cycle(dep_job_id, path + [job_id])
+            if cycle_str:
+                return cycle_str
+        visiting.remove(job_id)
+        visited.add(job_id)
+        return None
+
+    for block in blocks:
+        cycle_str = find_cycle(block.job_id, [])
+        if cycle_str:
+            return f"Circular dependency detected: {cycle_str}"
+
+    return None
+
+
+def add_dependency_constraints(model, block_start, dependency_end):
+    """
+    Force a maintenance block to start at or after ONE other block finishes:
+
+        start_of_this_block >= end_of_dependency_block
+
+    If a block depends on more than one other block, call this once per
+    dependency (the caller loops over the block's `dependencies` list).
+    """
+    model.Add(block_start >= dependency_end)

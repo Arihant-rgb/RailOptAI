@@ -32,6 +32,8 @@ from .constraints import (
     add_hard_no_overlap_constraints,
     add_soft_overlap_vars,
     add_no_overlap_between_maintenance_blocks,
+    validate_dependencies,
+    add_dependency_constraints,
 )
 
 
@@ -71,10 +73,10 @@ class MaintenanceOptimizer:
 
         # 1. Create variables + basic timing constraints for every block.
         for i, block in enumerate(self.blocks):
-            start = model.NewIntVar(0, self.horizon, f"start_{i}_{block.block_id}")
-            end = model.NewIntVar(0, self.horizon, f"end_{i}_{block.block_id}")
+            start = model.NewIntVar(0, self.horizon, f"start_{i}_{block.job_id}")
+            end = model.NewIntVar(0, self.horizon, f"end_{i}_{block.job_id}")
             interval = model.NewIntervalVar(
-                start, block.maintenance_duration, end, f"interval_{i}_{block.block_id}"
+                start, block.maintenance_duration, end, f"interval_{i}_{block.job_id}"
             )
 
             add_time_bounds(
@@ -115,7 +117,22 @@ class MaintenanceOptimizer:
         for interval_vars in intervals_by_railway_block.values():
             add_no_overlap_between_maintenance_blocks(model, interval_vars)
 
-        # 4. Objective (see _build_objective for the full explanation).
+        # 4. Dependency constraints: a job can only start once every job it
+        #    depends on has finished. Dependencies refer to `job_id`, NOT
+        #    `block_id` (block_id is the railway section, which several
+        #    jobs can share). validate_dependencies has already run (see
+        #    solve()), so every job_id is guaranteed unique -- safe to look
+        #    up directly.
+        job_id_to_index = {block.job_id: i for i, block in enumerate(self.blocks)}
+
+        for i, block in enumerate(self.blocks):
+            for dep_job_id in (block.dependencies or []):
+                dependency_index = job_id_to_index[dep_job_id]
+                add_dependency_constraints(
+                    model, self.block_starts[i], self.block_ends[dependency_index]
+                )
+
+        # 5. Objective (see _build_objective for the full explanation).
         self._build_objective(all_overlap_terms)
 
     def _build_objective(self, all_overlap_terms):
@@ -158,6 +175,19 @@ class MaintenanceOptimizer:
         model.Minimize(disruption_cost * priority_weight + scheduling_cost)
 
     def solve(self, max_time_in_seconds: float = 10.0) -> dict:
+        # Check dependencies BEFORE building any CP-SAT variables, so bad
+        # dependency data (unknown block_id, ambiguous block_id, or a
+        # circular dependency) never reaches the solver -- it's reported
+        # as a clear error instead.
+        dependency_error = validate_dependencies(self.blocks)
+        if dependency_error:
+            return {
+                "status": "INVALID_DEPENDENCIES",
+                "feasible": False,
+                "message": dependency_error,
+                "blocks": [],
+            }
+
         self.build()
 
         solver = cp_model.CpSolver()
@@ -194,6 +224,7 @@ class MaintenanceOptimizer:
             block_results.append(
                 {
                     "block_index": i,
+                    "job_id": block.job_id,
                     "block_id": block.block_id,
                     "priority": block.priority,
                     "start_minutes": start_min,
@@ -279,14 +310,17 @@ if __name__ == "__main__":
     #    only the train information will change, to simulate a real delay.
     # -----------------------------------------------------------------
     blocks = [
-        MaintenanceBlock(block_id="SEC-1", maintenance_duration=60, deadline=300, priority=1),
+        MaintenanceBlock(job_id="MJ-SEC1-A", block_id="SEC-1", maintenance_duration=60, deadline=300, priority=1),
         # This job must start at 100 or later, and is high priority (9) --
         # watch it move to an earlier slot once the train's delay opens one up.
-        MaintenanceBlock(block_id="SEC-1", maintenance_duration=45, deadline=300, priority=9, earliest_start=100),
+        MaintenanceBlock(
+            job_id="MJ-SEC1-B", block_id="SEC-1", maintenance_duration=45, deadline=300,
+            priority=9, earliest_start=100,
+        ),
         # Independent section -- included to show it is unaffected by what
         # happens on SEC-1 below.
         MaintenanceBlock(
-            block_id="SEC-2", maintenance_duration=90, deadline=400, priority=5,
+            job_id="MJ-SEC2-A", block_id="SEC-2", maintenance_duration=90, deadline=400, priority=5,
             earliest_start=120, latest_end=360,
         ),
     ]
@@ -317,3 +351,25 @@ if __name__ == "__main__":
     # -----------------------------------------------------------------
     new_result = replan_schedule(blocks, delayed_trains)
     print_schedule("New schedule after EXP-101 is delayed to 160-190", new_result)
+
+    # -----------------------------------------------------------------
+    # 5. Maintenance DEPENDENCIES demo: some jobs must happen in a strict
+    #    order. TD001 can only start after TMS001 finishes, and SM001 can
+    #    only start after TD001 finishes. All three are DIFFERENT jobs
+    #    (different job_id) on the SAME railway section (same block_id) --
+    #    this is exactly the case job_id was introduced to handle correctly.
+    # -----------------------------------------------------------------
+    dependency_blocks = [
+        MaintenanceBlock(job_id="TMS001", block_id="SEC-1", maintenance_duration=60, deadline=500, priority=5),
+        MaintenanceBlock(
+            job_id="TD001", block_id="SEC-1", maintenance_duration=45, deadline=500, priority=7,
+            dependencies=["TMS001"],
+        ),
+        MaintenanceBlock(
+            job_id="SM001", block_id="SEC-1", maintenance_duration=30, deadline=500, priority=6,
+            dependencies=["TD001"],
+        ),
+    ]
+
+    dependency_result = replan_schedule(dependency_blocks, [])
+    print_schedule("Dependency chain: TMS001 -> TD001 -> SM001 (all on SEC-1)", dependency_result)
