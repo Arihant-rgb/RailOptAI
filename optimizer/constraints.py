@@ -212,3 +212,33 @@ def add_dependency_constraints(model, block_start, dependency_end):
     dependency (the caller loops over the block's `dependencies` list).
     """
     model.Add(block_start >= dependency_end)
+
+
+def add_bundle_window_indicator(model, block_start, block_end, window_start, window_end, name_suffix):
+    """
+    Create a boolean variable that is TRUE exactly when [block_start,
+    block_end] fits ENTIRELY inside [window_start, window_end].
+
+    This is used ONLY as a soft signal for the objective, to encourage
+    bundling several maintenance jobs into the same available block
+    window -- it is NEVER a hard constraint. A job that doesn't fit simply
+    doesn't get the bonus; it is still scheduled normally using its own
+    duration/deadline/earliest_start/latest_end, so this can never make
+    the model infeasible.
+    """
+    within_start = model.NewBoolVar(f"within_start_{name_suffix}")
+    within_end = model.NewBoolVar(f"within_end_{name_suffix}")
+
+    # Fully reify both directions so they can be trusted inside an AND.
+    model.Add(block_start >= window_start).OnlyEnforceIf(within_start)
+    model.Add(block_start < window_start).OnlyEnforceIf(within_start.Not())
+
+    model.Add(block_end <= window_end).OnlyEnforceIf(within_end)
+    model.Add(block_end > window_end).OnlyEnforceIf(within_end.Not())
+
+    fits_window = model.NewBoolVar(f"fits_window_{name_suffix}")
+    # fits_window == AND(within_start, within_end): min of two booleans is
+    # their logical AND, and AddMinEquality reifies it in both directions.
+    model.AddMinEquality(fits_window, [within_start, within_end])
+
+    return fits_window

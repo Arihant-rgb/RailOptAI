@@ -57,6 +57,38 @@ class MaintenanceBlock:
     earliest_start: Optional[int] = None  # maintenance cannot START before this time, if set
     latest_end: Optional[int] = None      # maintenance cannot FINISH after this time, if set
     dependencies: Optional[List[str]] = None  # job_ids that must finish before this one can start
+    department: Optional[str] = None      # e.g. "TMS" / "TD" / "SM" -- informational only, not
+                                           # used in any constraint; purely so results/printouts
+                                           # can show which department a job belongs to.
+
+
+@dataclass
+class AvailableBlockWindow:
+    """
+    An available maintenance possession window for a railway section --
+    e.g. "SEC-1 is available for maintenance from 02:00 to 04:00."
+
+    This is DIFFERENT from a MaintenanceBlock's own earliest_start/latest_end:
+    those are HARD per-job limits that must be respected exactly. This
+    window is a PREFERRED opportunity to bundle several jobs (possibly from
+    different departments) together on the same section. The optimizer will
+    try to fit jobs into it when doing so doesn't cost anything on the
+    existing objective (train disruption, then priority), but jobs are
+    NEVER forced to fit here -- if the combined duration of everything that
+    could use this window doesn't actually fit, the jobs are simply
+    scheduled normally using their own individual constraints instead (see
+    `add_bundle_window_indicator` and `_build_objective` in optimizer.py).
+
+    `block_id` matches this window to a railway section -- any
+    MaintenanceBlock with the same block_id is a candidate for bundling
+    into this window. A section can have zero, one, or several such
+    windows (e.g. one per night); MaintenanceBlock itself needs no new
+    field to use this -- the link is purely through the shared block_id.
+    """
+
+    block_id: str
+    window_start: int
+    window_end: int
 
 
 @dataclass
