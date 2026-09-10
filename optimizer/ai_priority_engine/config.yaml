@@ -1,0 +1,11 @@
+weights:
+  severity: 0.3
+  overdue_days: 0.15
+  asset_impact: 0.2
+  delay_risk: 0.15
+  criticality: 0.15
+  maintenance_duration: 0.05
+level_thresholds:
+  critical: 80
+  high: 60
+  medium: 40
