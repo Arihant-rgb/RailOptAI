@@ -363,6 +363,39 @@ def replan_schedule(blocks, trains, horizon=None, max_time_in_seconds=10.0, avai
     return optimizer.solve(max_time_in_seconds=max_time_in_seconds)
 
 
+def solve_and_evaluate(
+    blocks,
+    trains,
+    horizon=None,
+    max_time_in_seconds=10.0,
+    available_windows=None,
+):
+    """
+    Convenience wrapper: run the optimizer via replan_schedule(), then
+    immediately score the result with evaluation.py's evaluate_schedule().
+
+    This is EXACTLY equivalent to calling:
+        schedule = replan_schedule(blocks, trains, ...)
+        evaluation = evaluate_schedule(schedule, blocks=blocks, trains=trains)
+    yourself -- it exists purely so callers who want an evaluated result
+    don't have to know about the evaluation module at all. It does not
+    change how scheduling works, and evaluation.py is imported here (not
+    at the top of this file) so that evaluation stays a fully optional,
+    independent module -- nothing about the core scheduling logic depends
+    on it existing.
+
+    Returns a (schedule, evaluation) tuple.
+    """
+    from .evaluation import evaluate_schedule  # local import: keeps evaluation fully optional
+
+    schedule = replan_schedule(
+        blocks, trains, horizon=horizon, max_time_in_seconds=max_time_in_seconds,
+        available_windows=available_windows,
+    )
+    evaluation = evaluate_schedule(schedule, blocks=blocks, trains=trains)
+    return schedule, evaluation
+
+
 
 if __name__ == "__main__":
     # -----------------------------------------------------------------
