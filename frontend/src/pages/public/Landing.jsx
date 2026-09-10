@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Train, ArrowRight, Database, Brain, Calendar, SplitSquareHorizontal, ShieldAlert, CheckCircle2, LayoutDashboard } from 'lucide-react';
+import { Train, ArrowRight, Database, Brain, Calendar, SplitSquareHorizontal, ShieldAlert, CheckCircle2 } from 'lucide-react';
 
 export default function Landing() {
   return (
@@ -42,15 +42,20 @@ export default function Landing() {
           <a href="#features" className="btn-secondary text-lg px-8 py-3">Explore Features</a>
         </div>
         
-        {/* Hero Image Mock */}
-        <div className="mt-16 relative mx-auto max-w-5xl">
-          <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent z-10"></div>
-          <div className="rounded-2xl border border-gray-200 shadow-2xl overflow-hidden bg-gray-50 flex items-center justify-center h-[400px]">
-             <div className="text-center">
-                <LayoutDashboard className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-400 font-medium">Dashboard Interface Preview</p>
-             </div>
-          </div>
+        {/* KPI Stats Strip */}
+        <div className="mt-16 mx-auto max-w-5xl grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[
+            { label: 'Total Jobs', value: '342', sub: 'Active maintenance tasks', color: 'text-rail-700', bg: 'bg-blue-50', border: 'border-blue-100' },
+            { label: 'Available Blocks', value: '56', sub: 'Open time windows', color: 'text-emerald-700', bg: 'bg-emerald-50', border: 'border-emerald-100' },
+            { label: 'Utilization Rate', value: '78.5%', sub: 'Block efficiency score', color: 'text-amber-700', bg: 'bg-amber-50', border: 'border-amber-100' },
+            { label: 'Active Conflicts', value: '12', sub: 'Requires resolution', color: 'text-red-700', bg: 'bg-red-50', border: 'border-red-100' },
+          ].map((stat, i) => (
+            <div key={i} className={`${stat.bg} border ${stat.border} rounded-2xl p-6 text-left shadow-sm`}>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">{stat.label}</p>
+              <p className={`text-4xl font-extrabold ${stat.color} mb-1`}>{stat.value}</p>
+              <p className="text-xs text-gray-400">{stat.sub}</p>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -109,10 +114,7 @@ export default function Landing() {
             <Train className="w-6 h-6 text-rail-500" />
             <span className="text-xl font-bold text-white">RailOptAI</span>
           </div>
-
-          <div className="flex gap-6">
-            <span className="text-gray-500 text-sm">Prototype Build</span>
-          </div>
+          <p className="text-gray-500 text-sm">© 2024 RailOptAI. All rights reserved.</p>
         </div>
       </footer>
     </div>

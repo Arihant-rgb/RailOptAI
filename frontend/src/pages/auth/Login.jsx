@@ -10,8 +10,7 @@ export default function Login() {
     hrmsId: '',
     zone: '',
     division: '',
-    password: '',
-    captcha: ''
+    password: ''
   });
 
   const handleSubmit = (e) => {
@@ -93,10 +92,8 @@ export default function Login() {
                   className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rail-600 text-sm"
                 >
                   <option value="" disabled>Select Zone</option>
-                  <option value="CR">Central Railway (CR)</option>
-                  <option value="WCR">West Central Railway (WCR)</option>
-                  <option value="WR">Western Railway (WR)</option>
-                  <option value="NR">Northern Railway (NR)</option>
+                  <option value="SWR">South Western Railway (SWR)</option>
+                  <option value="SR">Southern Railway (SR)</option>
                 </select>
               </div>
               <div>
@@ -109,10 +106,11 @@ export default function Login() {
                   className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rail-600 text-sm"
                 >
                   <option value="" disabled>Select Division</option>
-                  <option value="Bhopal">Bhopal</option>
-                  <option value="Jabalpur">Jabalpur</option>
-                  <option value="Mumbai">Mumbai CST</option>
-                  <option value="Pune">Pune</option>
+                  <option value="Bengaluru">Bengaluru Division (SWR)</option>
+                  <option value="Mysuru">Mysuru Division (SWR)</option>
+                  <option value="Hubballi">Hubballi Division (SWR)</option>
+                  <option value="Chennai">Chennai Division (SR)</option>
+                  <option value="Salem">Salem Division (SR)</option>
                 </select>
               </div>
             </div>
@@ -131,25 +129,6 @@ export default function Login() {
               />
             </div>
 
-            {/* CAPTCHA Section */}
-            <div className="pt-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Security Verification</label>
-              <div className="flex gap-4 items-center">
-                <div className="bg-gray-100 border border-gray-300 rounded px-6 py-2 tracking-[0.3em] font-mono font-bold text-lg text-gray-800 italic line-through select-none relative">
-                  <div className="absolute inset-0 opacity-20 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4IiBoZWlnaHQ9IjgiPgo8cmVjdCB3aWR0aD0iOCIgaGVpZ2h0PSI4IiBmaWxsPSIjZmZmIj48L3JlY3Q+CjxwYXRoIGQ9Ik0wIDBMOCA4Wk04IDBMMCA4WiIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utd2lkdGg9IjEiPjwvcGF0aD4KPC9zdmc+')]"></div>
-                  K9X2B7
-                </div>
-                <input 
-                  type="text" 
-                  name="captcha"
-                  required
-                  value={formData.captcha}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rail-600 uppercase font-mono" 
-                  placeholder="Enter Code" 
-                />
-              </div>
-            </div>
 
             <div className="flex items-center justify-between pt-2">
               <a href="#" className="text-sm font-medium text-rail-600 hover:text-rail-700">Forgot password?</a>
