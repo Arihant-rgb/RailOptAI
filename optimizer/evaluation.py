@@ -62,6 +62,7 @@ PENALTY_PER_UNSCHEDULED_JOB = 20.0   # a job that never made it into the plan
 PENALTY_PER_DISRUPTION_UNIT = 1.0    # per unit of reported train disruption cost
 PENALTY_PER_CRITICAL_ISSUE = 25.0    # missed deadline / dependency violation / overlap
 BONUS_PER_BUNDLED_JOB = 2.0          # job that landed inside an available window
+BONUS_PER_REVERSE_PLANNED_JOB = 1.0  # job that landed inside a Reverse Planning window
 
 MIN_SCORE = 0.0
 MAX_SCORE = 100.0
@@ -194,6 +195,17 @@ def _compute_metrics(schedule: dict, result_blocks: list, blocks: Optional[list]
     window_used_count = len(window_used)
     window_utilization = (window_used_count / window_eligible_count) if window_eligible_count else None
 
+    # Reverse Planning metrics -- mirrors the available-window metrics
+    # above exactly, just reading "within_reverse_planning_window"
+    # instead. Both fields are optional in the schedule (absent/None is
+    # treated the same as "not eligible"), so this stays backward
+    # compatible with schedules produced before Reverse Planning existed.
+    rp_eligible = [b for b in result_blocks if b.get("within_reverse_planning_window") is not None]
+    rp_used = [b for b in rp_eligible if b.get("within_reverse_planning_window") is True]
+    rp_eligible_count = len(rp_eligible)
+    rp_used_count = len(rp_used)
+    rp_utilization = (rp_used_count / rp_eligible_count) if rp_eligible_count else None
+
     disrupted_train_ids = set()
     for b in result_blocks:
         disrupted_train_ids.update(b.get("disrupted_trains", []))
@@ -208,6 +220,9 @@ def _compute_metrics(schedule: dict, result_blocks: list, blocks: Optional[list]
         "jobs_within_available_window": window_used_count,
         "window_eligible_jobs": window_eligible_count,
         "window_utilization": round(window_utilization, 2) if window_utilization is not None else None,
+        "jobs_within_reverse_planning_window": rp_used_count,
+        "reverse_planning_eligible_jobs": rp_eligible_count,
+        "reverse_planning_utilization": round(rp_utilization, 2) if rp_utilization is not None else None,
     }
 
 
@@ -347,6 +362,7 @@ def _compute_score(feasible: bool, metrics: dict, issues: list) -> float:
     score -= metrics["total_disruption_cost"] * PENALTY_PER_DISRUPTION_UNIT
     score -= critical_issue_count * PENALTY_PER_CRITICAL_ISSUE
     score += metrics["jobs_within_available_window"] * BONUS_PER_BUNDLED_JOB
+    score += metrics["jobs_within_reverse_planning_window"] * BONUS_PER_REVERSE_PLANNED_JOB
 
     return max(MIN_SCORE, min(MAX_SCORE, round(score, 2)))
 

@@ -14,17 +14,24 @@ Key ideas:
     occupy a track section at once.
   - Dependencies (block.dependencies) refer to other jobs by job_id and
     force start_of_this_job >= end_of_that_job.
-  - The objective has up to three parts, combined so each one only ever
+  - The objective has up to FOUR parts, combined so each one only ever
     breaks TIES left by the one before it (see _build_objective):
       1. Train disruption cost -- always the main thing we minimize.
       2. Prefer finishing higher-priority maintenance blocks earlier,
          but ONLY when it doesn't cost any extra train disruption.
       3. Prefer bundling jobs into a shared AvailableBlockWindow when
          given one, but ONLY when it doesn't change (1) or (2) at all.
+      4. Reverse Planning: prefer jobs landing entirely inside a
+         sufficiently long train-free gap ("Reverse Planning window"),
+         but ONLY when it doesn't change (1), (2), or (3) at all. This
+         is a SOFT preference only -- a job that doesn't fit any Reverse
+         Planning window is still fully schedulable anywhere else that's
+         otherwise feasible (see ReversePlanningWindow /
+         compute_reverse_planning_windows below).
 """
 
 from collections import defaultdict
-from dataclasses import replace
+from dataclasses import dataclass, replace
 
 from ortools.sat.python import cp_model
 
@@ -47,6 +54,108 @@ def minutes_to_hhmm(total_minutes: int) -> str:
     return f"{hours:02d}:{minutes:02d}"
 
 
+# ---------------------------------------------------------------------
+# Reverse Planning
+# ---------------------------------------------------------------------
+#
+# "Reverse Planning" (MVP version) means: look at where the trains
+# already are on a railway section, find the train-free gaps between
+# them, and -- if a gap is long enough to be practically useful for
+# maintenance -- offer it to the optimizer as a place it should PREFER
+# to put maintenance jobs. It is deliberately NOT based on "few trains"
+# or traffic density/intensity -- only on the raw train-free gap length,
+# per the MVP scope for this feature.
+#
+# This is intentionally just plain data + plain Python, with no CP-SAT
+# involved -- exactly like AvailableBlockWindow. The optimizer decides
+# what to DO with these windows (see MaintenanceOptimizer.build()).
+
+@dataclass(frozen=True)
+class ReversePlanningWindow:
+    """
+    One Reverse Planning window: a train-free gap on a single railway
+    section/block (`block_id`) that is at least as long as the
+    configured minimum gap duration, expressed as [window_start,
+    window_end) in minutes-from-start-of-day.
+    """
+    block_id: str
+    window_start: int
+    window_end: int
+
+
+def _merge_train_intervals(trains_for_block):
+    """
+    Sort a section's train movements by arrival time and merge any that
+    overlap (or touch), so that gap-finding below never mistakes two
+    overlapping/adjacent train movements for a train-free gap between
+    them. Zero-duration entries (arrival == departure) are ignored.
+
+    Returns a list of (start, end) tuples, sorted and non-overlapping.
+    """
+    intervals = sorted(
+        ((t.arrival, t.departure) for t in trains_for_block if t.departure > t.arrival),
+        key=lambda pair: pair[0],
+    )
+
+    merged = []
+    for start, end in intervals:
+        if merged and start <= merged[-1][1]:
+            merged[-1] = (merged[-1][0], max(merged[-1][1], end))
+        else:
+            merged.append((start, end))
+    return merged
+
+
+def compute_reverse_planning_windows(trains, block_ids, horizon, min_gap_minutes=60):
+    """
+    Find Reverse Planning windows: train-free gaps that are at least
+    `min_gap_minutes` long, for every block_id in `block_ids`.
+
+    For each block_id:
+      - Collect that section's train movements and merge overlaps.
+      - Walk the merged movements in time order, tracking the gap
+        before each one (starting from minute 0).
+      - Keep a gap only if it's >= min_gap_minutes long.
+      - Also check the trailing gap after the last train movement, up
+        to `horizon`.
+      - A section with NO trains at all is simply one big gap from 0 to
+        `horizon` -- handled for free by the same logic (no special
+        case needed), which satisfies "handles sections with no
+        trains".
+
+    This function does NOT look at traffic density or "few trains" --
+    only at raw train-free gap length, per the MVP scope.
+
+    Returns a list[ReversePlanningWindow], in no particular guaranteed
+    order beyond being grouped by block_id in the order block_ids was
+    given, and chronological within each block_id.
+    """
+    if min_gap_minutes <= 0:
+        return []
+
+    trains_by_block = defaultdict(list)
+    for train in trains:
+        trains_by_block[train.block_id].append(train)
+
+    windows = []
+    for block_id in block_ids:
+        merged = _merge_train_intervals(trains_by_block.get(block_id, []))
+
+        cursor = 0
+        for start, end in merged:
+            if start - cursor >= min_gap_minutes:
+                windows.append(ReversePlanningWindow(block_id, cursor, start))
+            cursor = max(cursor, end)
+
+        # Trailing gap after the last train movement (or the ENTIRE
+        # horizon, if this section has no trains at all -- cursor is
+        # still 0 in that case).
+        if horizon - cursor >= min_gap_minutes:
+            windows.append(ReversePlanningWindow(block_id, cursor, horizon))
+
+    return windows
+
+
 class MaintenanceOptimizer:
     def __init__(
         self,
@@ -54,6 +163,9 @@ class MaintenanceOptimizer:
         trains: list[Train],
         horizon: int = None,
         available_windows: list[AvailableBlockWindow] = None,
+        enable_reverse_planning: bool = True,
+        reverse_planning_min_gap: int = 60,
+        reverse_planning_windows: list[ReversePlanningWindow] = None,
     ):
         self.blocks = blocks
         self.trains = trains
@@ -67,6 +179,28 @@ class MaintenanceOptimizer:
             latest_departure = max((t.departure for t in trains), default=0)
             horizon = max(latest_deadline, latest_departure)
         self.horizon = horizon
+
+        # Reverse Planning is a SOFT PREFERENCE, enabled by default. It
+        # never adds a hard constraint -- see build()/`_build_objective`.
+        # `min_gap` is the configurable minimum train-free gap length
+        # (in minutes) for a gap to count as a Reverse Planning window.
+        self.enable_reverse_planning = enable_reverse_planning
+        self.reverse_planning_min_gap = reverse_planning_min_gap
+
+        if reverse_planning_windows is not None:
+            # Caller supplied their own windows explicitly (e.g. tests,
+            # or a caller that wants to compute them differently) -- use
+            # those as-is, regardless of enable_reverse_planning's value
+            # for auto-computation (enable_reverse_planning still gates
+            # whether they're actually used in build()).
+            self.reverse_planning_windows = reverse_planning_windows
+        elif enable_reverse_planning:
+            block_ids = {block.block_id for block in blocks}
+            self.reverse_planning_windows = compute_reverse_planning_windows(
+                trains, block_ids, self.horizon, min_gap_minutes=reverse_planning_min_gap,
+            )
+        else:
+            self.reverse_planning_windows = []
 
         self.model = cp_model.CpModel()
 
@@ -84,6 +218,12 @@ class MaintenanceOptimizer:
         # blocks[i] -- filled in during build(), used to report whether a
         # block ended up inside one of its candidate windows.
         self.bundle_info = []
+
+        # reverse_planning_info[i] = list of (ReversePlanningWindow,
+        # fits_boolvar) for blocks[i] -- filled in during build(), used to
+        # report whether a block ended up inside one of its candidate
+        # Reverse Planning windows.
+        self.reverse_planning_info = []
 
     def build(self):
         model = self.model
@@ -173,18 +313,49 @@ class MaintenanceOptimizer:
                 self.bundle_info[i].append((window, fits))
                 all_bundle_terms.append(fits)
 
-        # 6. Objective (see _build_objective for the full explanation).
-        self._build_objective(all_overlap_terms, all_bundle_terms)
+        # 6. Reverse Planning bonus (soft, optional, weakest preference of
+        #    all): for every Reverse Planning window that shares a
+        #    block_id with this job, create a boolean that's TRUE if the
+        #    job fits entirely inside that window. Exactly the same
+        #    mechanism as bundling above (reuses the same helper) -- just
+        #    a different source of candidate windows. NEVER a hard
+        #    constraint: a job that fits no Reverse Planning window is
+        #    simply not rewarded, not made infeasible, and remains fully
+        #    schedulable in any other otherwise-feasible slot.
+        all_reverse_planning_terms = []
+        self.reverse_planning_info = [[] for _ in self.blocks]
 
-    def _build_objective(self, all_overlap_terms, all_bundle_terms):
+        if self.enable_reverse_planning:
+            for w_index, window in enumerate(self.reverse_planning_windows):
+                for i, block in enumerate(self.blocks):
+                    if block.block_id != window.block_id:
+                        continue
+                    fits = add_bundle_window_indicator(
+                        model,
+                        self.block_starts[i],
+                        self.block_ends[i],
+                        window.window_start,
+                        window.window_end,
+                        name_suffix=f"rp_{i}_{block.job_id}_w{w_index}",
+                    )
+                    self.reverse_planning_info[i].append((window, fits))
+                    all_reverse_planning_terms.append(fits)
+
+        # 7. Objective (see _build_objective for the full explanation).
+        self._build_objective(all_overlap_terms, all_bundle_terms, all_reverse_planning_terms)
+
+    def _build_objective(self, all_overlap_terms, all_bundle_terms, all_reverse_planning_terms):
         """
-        Build a single objective expression with up to THREE tiers, each one
+        Build a single objective expression with up to FOUR tiers, each one
         only ever breaking ties left by the tier before it:
           (a) minimize train disruption FIRST,
           (b) among schedules that disrupt trains equally, prefer finishing
               higher-priority maintenance blocks earlier,
           (c) among schedules that are equally good on (a) and (b), prefer
               ones that bundle jobs into a shared AvailableBlockWindow.
+          (d) among schedules that are equally good on (a), (b), and (c),
+              prefer ones where jobs land entirely inside a Reverse
+              Planning window (a sufficiently long train-free gap).
 
         How each tier is kept strictly subordinate to the one before it:
         We multiply the "more important" tiers by a number guaranteed to be
@@ -193,7 +364,10 @@ class MaintenanceOptimizer:
         of a higher tier for a better score on a lower one -- lower tiers
         only ever choose between solutions the higher tiers already
         consider equally good. This is the same lexicographic-weighting
-        trick used for (a) vs (b); (c) is just one more layer on top of it.
+        trick used for (a) vs (b); (c) and (d) are just more layers on top
+        of it, in decreasing order of importance. Tiers with no terms at
+        all are skipped, so behavior is EXACTLY unchanged whenever bundling
+        and/or Reverse Planning aren't in play.
         """
         model = self.model
 
@@ -216,22 +390,26 @@ class MaintenanceOptimizer:
         total_block_priority = sum(block.priority for block in self.blocks)
         priority_weight = self.horizon * total_block_priority + 1
 
-        core_cost = disruption_cost * priority_weight + scheduling_cost
-
-        if not all_bundle_terms:
-            # No available windows were given -- behave EXACTLY as before.
-            model.Minimize(core_cost)
-            return
+        cost = disruption_cost * priority_weight + scheduling_cost
 
         # (c) Bundling bonus: reward (via a lower cost) every job that fits
-        # entirely inside one of its candidate windows.
-        bundle_bonus_sum = sum(all_bundle_terms)
+        # entirely inside one of its candidate AvailableBlockWindows.
+        if all_bundle_terms:
+            bundle_bonus_sum = sum(all_bundle_terms)
+            # The bonus can never exceed the number of (job, window) pairs
+            # we created. Scaling cost up by one more than that guarantees
+            # (a) and (b) together always dominate (c).
+            max_possible_bundle_bonus = len(all_bundle_terms)
+            cost = cost * (max_possible_bundle_bonus + 1) - bundle_bonus_sum
 
-        # The bonus can never exceed the number of (job, window) pairs we
-        # created. Scaling core_cost up by one more than that guarantees
-        # (a) and (b) together always dominate (c).
-        max_possible_bonus = len(all_bundle_terms)
-        model.Minimize(core_cost * (max_possible_bonus + 1) - bundle_bonus_sum)
+        # (d) Reverse Planning bonus: same idea, one tier weaker than (c),
+        # using candidate Reverse Planning windows instead.
+        if all_reverse_planning_terms:
+            reverse_planning_bonus_sum = sum(all_reverse_planning_terms)
+            max_possible_rp_bonus = len(all_reverse_planning_terms)
+            cost = cost * (max_possible_rp_bonus + 1) - reverse_planning_bonus_sum
+
+        model.Minimize(cost)
 
     def solve(self, max_time_in_seconds: float = 10.0) -> dict:
         # Check dependencies BEFORE building any CP-SAT variables, so bad
@@ -288,6 +466,16 @@ class MaintenanceOptimizer:
                     solver.Value(fits) == 1 for _window, fits in self.bundle_info[i]
                 )
 
+            # True if this job landed entirely inside ANY of its candidate
+            # Reverse Planning windows; None if it had no candidate
+            # Reverse Planning window at all (e.g. feature disabled, or no
+            # train-free gap on its section was long enough).
+            within_reverse_planning_window = None
+            if self.reverse_planning_info[i]:
+                within_reverse_planning_window = any(
+                    solver.Value(fits) == 1 for _window, fits in self.reverse_planning_info[i]
+                )
+
             block_results.append(
                 {
                     "block_index": i,
@@ -302,6 +490,7 @@ class MaintenanceOptimizer:
                     "disrupted_trains": disrupted_trains,
                     "disruption_cost": block_cost,
                     "within_available_window": within_available_window,
+                    "within_reverse_planning_window": within_reverse_planning_window,
                 }
             )
 
@@ -310,6 +499,19 @@ class MaintenanceOptimizer:
             "feasible": True,
             "blocks": block_results,
             "total_disruption_cost": total_disruption_cost,
+            # Informational only -- the actual windows considered for
+            # Reverse Planning this run (empty if the feature was
+            # disabled, or if no section had a qualifying train-free gap).
+            "reverse_planning_windows": [
+                {
+                    "block_id": w.block_id,
+                    "window_start": w.window_start,
+                    "window_end": w.window_end,
+                    "start_time": minutes_to_hhmm(w.window_start),
+                    "end_time": minutes_to_hhmm(w.window_end),
+                }
+                for w in self.reverse_planning_windows
+            ],
         }
 
 
@@ -338,7 +540,16 @@ def update_train_schedule(trains, train_id, new_arrival=None, new_departure=None
     return updated_trains
 
 
-def replan_schedule(blocks, trains, horizon=None, max_time_in_seconds=10.0, available_windows=None):
+def replan_schedule(
+    blocks,
+    trains,
+    horizon=None,
+    max_time_in_seconds=10.0,
+    available_windows=None,
+    enable_reverse_planning=True,
+    reverse_planning_min_gap=60,
+    reverse_planning_windows=None,
+):
     """
     Dynamic replanning, MVP version.
 
@@ -346,6 +557,13 @@ def replan_schedule(blocks, trains, horizon=None, max_time_in_seconds=10.0, avai
     world changed (a train got delayed, added, or cancelled), so we take the
     LATEST maintenance jobs and the LATEST train information and run the
     optimizer again, from scratch, to get an up-to-date schedule.
+
+    `enable_reverse_planning` / `reverse_planning_min_gap` /
+    `reverse_planning_windows` are OPTIONAL and simply forwarded to
+    MaintenanceOptimizer -- Reverse Planning is enabled by default (see
+    MaintenanceOptimizer for the full explanation), can be disabled with
+    `enable_reverse_planning=False`, and never changes any existing
+    behavior since it's purely a soft preference in the objective.
 
     This function does NOT add any new optimization logic of its own -- it
     just builds a normal MaintenanceOptimizer with whatever `blocks` and
@@ -359,7 +577,15 @@ def replan_schedule(blocks, trains, horizon=None, max_time_in_seconds=10.0, avai
 
     Think of it as: "run the planner again, but with today's information."
     """
-    optimizer = MaintenanceOptimizer(blocks, trains, horizon=horizon, available_windows=available_windows)
+    optimizer = MaintenanceOptimizer(
+        blocks,
+        trains,
+        horizon=horizon,
+        available_windows=available_windows,
+        enable_reverse_planning=enable_reverse_planning,
+        reverse_planning_min_gap=reverse_planning_min_gap,
+        reverse_planning_windows=reverse_planning_windows,
+    )
     return optimizer.solve(max_time_in_seconds=max_time_in_seconds)
 
 
@@ -369,6 +595,9 @@ def solve_and_evaluate(
     horizon=None,
     max_time_in_seconds=10.0,
     available_windows=None,
+    enable_reverse_planning=True,
+    reverse_planning_min_gap=60,
+    reverse_planning_windows=None,
 ):
     """
     Convenience wrapper: run the optimizer via replan_schedule(), then
@@ -391,6 +620,9 @@ def solve_and_evaluate(
     schedule = replan_schedule(
         blocks, trains, horizon=horizon, max_time_in_seconds=max_time_in_seconds,
         available_windows=available_windows,
+        enable_reverse_planning=enable_reverse_planning,
+        reverse_planning_min_gap=reverse_planning_min_gap,
+        reverse_planning_windows=reverse_planning_windows,
     )
     evaluation = evaluate_schedule(schedule, blocks=blocks, trains=trains)
     return schedule, evaluation
@@ -520,3 +752,63 @@ if __name__ == "__main__":
         "Bundling case B: window 02:00-04:00 (too tight for all 3 -- must NOT fail)",
         partial_result,
     )
+
+    # -----------------------------------------------------------------
+    # 7. REVERSE PLANNING demo.
+    #
+    # Section "SEC-RP" has three train movements:
+    #   T1: 00:00-00:30   T2: 01:10-01:40   T3: 04:10-04:40
+    #
+    # That creates two train-free gaps BEFORE the trailing horizon gap:
+    #   Gap 1: 00:30-01:10 (40 min) -- too short for a 60-min minimum gap,
+    #          so it must NOT become a Reverse Planning window.
+    #   Gap 2: 01:40-04:10 (150 min) -- long enough, so it DOES become a
+    #          Reverse Planning window.
+    #   Trailing gap: 04:40 to the end of the horizon -- also long
+    #          enough, so it's a second Reverse Planning window.
+    #
+    # The maintenance job is only 20 minutes long (so it fits inside
+    # gap 1 just as easily as inside a Reverse Planning window) and its
+    # priority is 0 (so tier (b) of the objective -- "finish
+    # higher-priority jobs earlier" -- has literally nothing to say
+    # about it, and can't override tier (d)). All trains are hard
+    # (can_be_affected=False), so ANY overlap with a train is simply
+    # infeasible, and tier (a) is 0 no matter where the job lands.
+    # That isolates the Reverse Planning preference: with everything
+    # else tied, the optimizer should place the job inside a Reverse
+    # Planning window rather than in the short, non-qualifying gap.
+    # -----------------------------------------------------------------
+    rp_trains = [
+        Train(train_id="RP-T1", block_id="SEC-RP", arrival=0, departure=30, priority=5, can_be_affected=False),
+        Train(train_id="RP-T2", block_id="SEC-RP", arrival=70, departure=100, priority=5, can_be_affected=False),
+        Train(train_id="RP-T3", block_id="SEC-RP", arrival=250, departure=280, priority=5, can_be_affected=False),
+    ]
+    rp_blocks = [
+        MaintenanceBlock(
+            job_id="RP-JOB-1", block_id="SEC-RP", maintenance_duration=20, deadline=400, priority=0,
+        ),
+    ]
+
+    rp_horizon = 400
+    rp_windows = compute_reverse_planning_windows(
+        rp_trains, block_ids={"SEC-RP"}, horizon=rp_horizon, min_gap_minutes=60,
+    )
+    print("\n--- Reverse Planning windows found on SEC-RP (min gap = 60 min) ---")
+    for w in rp_windows:
+        print(f"  {w.block_id}: {minutes_to_hhmm(w.window_start)} - {minutes_to_hhmm(w.window_end)}")
+    print("  (the 00:30-01:10 gap is only 40 min, so it correctly does NOT appear above)")
+
+    rp_result = replan_schedule(rp_blocks, rp_trains, horizon=rp_horizon)
+    print_schedule("Reverse Planning: job preferentially placed inside a qualifying gap", rp_result)
+    placed_job = rp_result["blocks"][0]
+    print(
+        f"  RP-JOB-1 scheduled {placed_job['start_time']}-{placed_job['end_time']}, "
+        f"within_reverse_planning_window={placed_job['within_reverse_planning_window']}"
+    )
+
+    # Sanity check: with Reverse Planning disabled, the feature has zero
+    # effect on feasibility -- the job is still scheduled somewhere valid.
+    rp_disabled_result = replan_schedule(
+        rp_blocks, rp_trains, horizon=rp_horizon, enable_reverse_planning=False,
+    )
+    print_schedule("Same scenario with Reverse Planning DISABLED (still feasible)", rp_disabled_result)
