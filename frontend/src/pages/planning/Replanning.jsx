@@ -219,9 +219,9 @@ export default function Replanning() {
                   onChange={(e) => setEmergencySection(e.target.value)}
                   className="w-full px-3 py-2 border rounded-lg text-sm"
                 >
-                  <option value="S01">S01</option>
-                  <option value="S02">S02</option>
-                  <option value="S03">S03</option>
+                  {['S01','S02','S03','S04','S05','S06','S07','S08','S09','S10','S11','S12'].map(s => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
                 </select>
               </div>
               <div>
@@ -248,15 +248,45 @@ export default function Replanning() {
           <div className="card lg:col-span-2 space-y-4">
             <h3 className="font-semibold text-gray-900 border-b pb-2">Dynamic Replanning Output</h3>
             {replanResult ? (
-              <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl space-y-3">
-                <p className="font-bold text-sm text-emerald-900">
-                  {replanResult.message}
-                </p>
-                <div className="text-xs text-emerald-800 space-y-1">
-                  <p>Added Emergency Job: <strong>{replanResult.added_job?.job_id}</strong></p>
-                  <p>Affected Region: <strong>Section {replanResult.affected_section}</strong></p>
-                  <p>Schedule Action: Emergency job inserted into 02:00-04:00 window. Non-critical jobs shifted automatically.</p>
+              <div className="space-y-4">
+                <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl space-y-2">
+                  <div className="flex items-center justify-between">
+                    <p className="font-bold text-sm text-emerald-900">{replanResult.message}</p>
+                    <span className="badge badge-success text-xs font-mono">CP-SAT: {replanResult.optimizer_status || 'OPTIMAL'}</span>
+                  </div>
+                  <div className="text-xs text-emerald-800 space-y-1">
+                    <p>Inserted Emergency Job: <strong>{replanResult.added_job?.job_id}</strong> on Section <strong>{replanResult.affected_section}</strong></p>
+                    <p>Total Train Disruption: <strong>{replanResult.total_disruption_cost}</strong> min</p>
+                  </div>
                 </div>
+
+                {replanResult.scheduled_blocks && replanResult.scheduled_blocks.length > 0 && (
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-bold text-gray-700 uppercase tracking-wider">CP-SAT Optimized Schedule</h4>
+                    <div className="space-y-2">
+                      {replanResult.scheduled_blocks.map((block, idx) => (
+                        <div key={block.job_id || idx} className="p-3 border rounded-lg flex items-center justify-between bg-white hover:bg-gray-50">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono text-xs font-bold text-rail-700">{block.job_id}</span>
+                              <span className="badge badge-info text-[10px]">{block.department}</span>
+                              {block.within_reverse_planning_window && (
+                                <span className="badge badge-success text-[10px]">Reverse Planning Window</span>
+                              )}
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1">
+                              Section {block.block_id} | Scheduled: <strong>{block.start_time} - {block.end_time}</strong>
+                            </p>
+                          </div>
+                          <div className="text-right text-xs">
+                            <span className="text-gray-500">Disruption: </span>
+                            <span className="font-bold text-gray-800">{block.disruption_cost || 0}m</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <p className="text-xs text-gray-400 py-8 text-center">Trigger an emergency incident to view real-time schedule re-optimization</p>

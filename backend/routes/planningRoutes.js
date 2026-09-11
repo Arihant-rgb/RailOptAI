@@ -1,5 +1,6 @@
 import express from 'express';
 import pool, { isPostgresConnected, readRealData } from '../config/db.js';
+import { runOptimizer } from '../services/optimizerService.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -190,43 +191,49 @@ router.post('/reverse', async (req, res) => {
   }
 });
 
-// ─── POST /api/planning/replan  (Emergency replanning) ───────────────────────
+// ─── POST /api/planning/replan  (Emergency replanning with CP-SAT) ───────────
 router.post('/replan', async (req, res) => {
   try {
     const { emergency_job_id, section_id, defect_type, department } = req.body;
     const data = readRealData();
+    const sec = section_id || 'S01';
 
-    // Find the first available block on that section
-    const availableBlock = data.blocks.find(b => b.section_id === section_id && b.status === 'Available');
-
+    // Find candidate jobs for this section
+    const targetJobs = data.maintenanceJobs.filter(j => j.section_id === sec);
     const newEmergencyJob = {
       job_id: emergency_job_id || `EMG_${Date.now()}`,
-      block_id: availableBlock?.block_id || 'B001',
-      section_id: section_id || 'S01',
+      section_id: sec,
       department: department || 'SMMS',
+      defect_type: defect_type || 'Emergency Track Defect',
       priority: 'Critical',
-      estimated_duration_hours: 1
+      estimated_duration: 1
     };
+    targetJobs.unshift(newEmergencyJob);
 
-    if (isPostgresConnected()) {
-      await pool.query(
-        'INSERT INTO plan_jobs (job_id, block_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
-        [newEmergencyJob.job_id, newEmergencyJob.block_id]
-      );
-    } else {
-      // Append to planned_jobs.json
-      let jobs = [];
-      try { jobs = JSON.parse(fs.readFileSync(plannedJobsPath, 'utf8')); } catch (_) {}
-      jobs.push(newEmergencyJob);
-      fs.writeFileSync(plannedJobsPath, JSON.stringify(jobs, null, 2), 'utf8');
-    }
+    // Get train movements for this section
+    const targetTrains = data.trainMovements.filter(t => t.section_id === sec).slice(0, 15);
+    // Get available possession windows
+    const targetWindows = data.blocks.filter(b => b.section_id === sec && b.status === 'Available');
+
+    // Execute Python CP-SAT Optimizer
+    const optResult = await runOptimizer({
+      action: 'replan',
+      jobs: targetJobs,
+      trains: targetTrains,
+      available_windows: targetWindows,
+      horizon: 1440
+    });
 
     return res.json({
       success: true,
-      message: 'Emergency replanning completed',
+      message: 'Dynamic CP-SAT replanning completed successfully',
       added_job: newEmergencyJob,
-      assigned_block: availableBlock || null,
-      affected_section: section_id
+      affected_section: sec,
+      optimizer_status: optResult.status || 'OPTIMAL',
+      feasible: optResult.feasible ?? true,
+      scheduled_blocks: optResult.blocks || [],
+      total_disruption_cost: optResult.total_disruption_cost || 0,
+      reverse_planning_windows: optResult.reverse_planning_windows || []
     });
   } catch (error) {
     console.error('Error during replanning:', error);

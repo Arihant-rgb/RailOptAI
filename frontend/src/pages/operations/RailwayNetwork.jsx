@@ -71,16 +71,23 @@ export default function RailwayNetwork() {
                 </tr>
               </thead>
               <tbody>
-                {stations.map((st) => (
-                  <tr key={st.station_id || st.id} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="py-2.5 px-3 font-mono text-xs font-medium text-rail-700">{st.station_id || st.id}</td>
-                    <td className="py-2.5 px-3 font-semibold">{st.station_code || st.code}</td>
-                    <td className="py-2.5 px-3">{st.station_name || st.name}</td>
-                    <td className="py-2.5 px-3 text-xs text-gray-500 font-mono">
-                      {st.latitude}, {st.longitude}
-                    </td>
-                  </tr>
-                ))}
+                {stations.map((st, idx) => {
+                  const id = st.station_id || st.id || st.Station_Code || st.station_code || `ST${idx + 1}`
+                  const code = st.station_code || st.code || st.Station_Code || ''
+                  const name = st.station_name || st.name || st.Station_Name || ''
+                  const lat = st.latitude ?? st.Latitude ?? ''
+                  const lng = st.longitude ?? st.Longitude ?? ''
+                  return (
+                    <tr key={id} className="border-b border-gray-100 hover:bg-gray-50">
+                      <td className="py-2.5 px-3 font-mono text-xs font-medium text-rail-700">{id}</td>
+                      <td className="py-2.5 px-3 font-semibold">{code}</td>
+                      <td className="py-2.5 px-3">{name}</td>
+                      <td className="py-2.5 px-3 text-xs text-gray-500 font-mono">
+                        {lat && lng ? `${lat}, ${lng}` : '—'}
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>
