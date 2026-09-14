@@ -95,11 +95,46 @@ router.post('/', async (req, res) => {
     // File-based write: update maintenance_jobs_unified.json
     let jobs = [];
     try { jobs = JSON.parse(fs.readFileSync(jobsFilePath, 'utf8')); } catch (_) {}
-    const idx = jobs.findIndex(j => j.job_id === newJob.job_id);
-    if (idx >= 0) jobs[idx] = { ...jobs[idx], ...newJob };
-    else jobs.push(newJob);
+
+    // Compute AI scoring fields from submitted data
+    const severity = Number(newJob.severity) || 3;
+    const overdueDays = Number(newJob.overdue_days) || 0;
+    const criticality = Math.min(100, severity * 20);
+    let urgency = 0;
+    if (overdueDays >= 15) urgency = 100;
+    else if (overdueDays >= 8) urgency = 75;
+    else if (overdueDays >= 4) urgency = 50;
+    else if (overdueDays >= 1) urgency = 25;
+    const priorityImpactMap = { Critical: 90, High: 70, Medium: 55, Low: 35 };
+    const assetImpact = Number(newJob.asset_impact) || priorityImpactMap[newJob.priority] || 60;
+    const sectionNum = parseInt((newJob.section_id || 'S06').replace('S', '')) || 6;
+    const delayRisk = Number(newJob.delay_risk) || Math.min(100, 50 + sectionNum * 3);
+    const priorityScore = Math.round(0.45 * criticality + 0.25 * urgency + 0.20 * assetImpact + 0.10 * delayRisk);
+
+    const enrichedJob = {
+      job_id: newJob.job_id,
+      department: newJob.department,
+      section_id: newJob.section_id,
+      asset_id: newJob.asset_id || `${newJob.department}-ASSET`,
+      asset_type: newJob.asset_type || 'Track',
+      defect_type: newJob.defect_type,
+      maintenance_type: newJob.maintenance_type || 'Corrective',
+      severity,
+      overdue_days: overdueDays,
+      estimated_duration: Number(newJob.estimated_duration) || 2,
+      power_block_required: newJob.power_block_required || false,
+      asset_impact: assetImpact,
+      delay_risk: delayRisk,
+      priority_score: priorityScore,
+      priority: newJob.priority || 'Medium',
+      status: newJob.status || 'Pending'
+    };
+
+    const idx = jobs.findIndex(j => j.job_id === enrichedJob.job_id);
+    if (idx >= 0) jobs[idx] = { ...jobs[idx], ...enrichedJob };
+    else jobs.push(enrichedJob);
     fs.writeFileSync(jobsFilePath, JSON.stringify(jobs, null, 2), 'utf8');
-    return res.status(201).json(newJob);
+    return res.status(201).json(enrichedJob);
   } catch (error) {
     console.error('Error saving maintenance job:', error);
     res.status(500).json({ error: 'Failed to save maintenance job' });

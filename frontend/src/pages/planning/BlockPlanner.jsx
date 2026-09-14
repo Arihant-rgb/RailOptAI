@@ -53,7 +53,7 @@ export default function BlockPlanner() {
       await generatePlan({
         start_date: '2026-09-05',
         end_date: '2026-09-11',
-        sections: ['S01', 'S02', 'S03']
+        sections: ['S01','S02','S03','S04','S05','S06','S07','S08','S09','S10','S11','S12']
       })
       alert('Optimized Block Plan generated successfully via backend optimizer engine!')
       loadBlocks()

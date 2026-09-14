@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Train, ArrowRight, AlertTriangle, ShieldCheck } from 'lucide-react';
+import CryptoJS from 'crypto-js';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -12,11 +13,30 @@ export default function Login() {
     division: '',
     password: ''
   });
+  const [error, setError] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // In a real app, validate credentials here. 
-    // For now, mock authentication and route to dashboard.
+    setError('');
+    
+    // Validate credentials (Mock Authentication)
+    if (formData.password !== 'admin123') {
+      setError('Invalid HRMS ID or Password. Please try again.');
+      return;
+    }
+    
+    // Encrypt the login data securely before storing
+    const secretKey = 'railoptai_secure_key_2026';
+    const dataToStore = {
+      hrmsId: formData.hrmsId,
+      zone: formData.zone,
+      division: formData.division,
+      loginTime: new Date().toISOString()
+    };
+    
+    const encryptedData = CryptoJS.AES.encrypt(JSON.stringify(dataToStore), secretKey).toString();
+    localStorage.setItem('railoptai_auth', encryptedData);
+    
     navigate('/dashboard');
   };
 
@@ -63,6 +83,13 @@ export default function Login() {
               Please enter your official credentials to access the block planning portal.
             </p>
           </div>
+
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             

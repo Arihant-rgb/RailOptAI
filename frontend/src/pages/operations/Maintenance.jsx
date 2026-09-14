@@ -38,14 +38,14 @@ export default function Maintenance() {
   const [newJob, setNewJob] = useState({
     job_id: '',
     department: 'TMS',
-    section_id: 'S01',
-    asset_id: 'TRK105',
+    section_id: 'S06',
+    asset_id: '',
     asset_type: 'Track',
     defect_type: 'Rail Crack',
-    severity: 5,
-    overdue_days: 3,
+    severity: 3,
+    overdue_days: 0,
     estimated_duration: 2,
-    priority: 'Critical',
+    priority: 'Medium',
     status: 'Pending'
   })
 
@@ -292,9 +292,9 @@ export default function Maintenance() {
                     onChange={(e) => setNewJob({ ...newJob, section_id: e.target.value })}
                     className="w-full px-3 py-2 border rounded-lg"
                   >
-                    <option value="S01">S01</option>
-                    <option value="S02">S02</option>
-                    <option value="S03">S03</option>
+                    {['S01','S02','S03','S04','S05','S06','S07','S08','S09','S10','S11','S12'].map(s => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -308,6 +308,31 @@ export default function Maintenance() {
                   className="w-full px-3 py-2 border rounded-lg"
                   required
                 />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-gray-700 font-medium mb-1">Severity (1–5)</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="5"
+                    value={newJob.severity}
+                    onChange={(e) => setNewJob({ ...newJob, severity: Number(e.target.value) })}
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-700 font-medium mb-1">Overdue Days</label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="60"
+                    value={newJob.overdue_days}
+                    onChange={(e) => setNewJob({ ...newJob, overdue_days: Number(e.target.value) })}
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">

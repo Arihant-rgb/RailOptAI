@@ -45,13 +45,21 @@ router.get('/', async (req, res) => {
     // Real conflicts: Since schedule_conflicts is 0 in the optimized schedule, active conflicts list is empty
     const conflicts = [];
 
+    // Dynamically compute counts from the actual jobs array (reflects newly added jobs)
+    const totalJobs = jobs.length;
+    const criticalJobs = jobs.filter(j => j.priority === 'Critical').length;
+    const pendingJobs = jobs.filter(j => !j.status || j.status === 'Pending').length;
+    const scheduledJobs = jobs.filter(j => j.status === 'Scheduled' || j.status === 'In Progress' || j.status === 'Completed').length;
+    
+    const availableBlocks = (data.blocks || []).filter(b => b.status === 'Available').length || 35;
+
     const kpis = {
       ...data.kpis,
-      totalJobs: data.kpis.total_jobs,
-      criticalJobs: data.kpis.critical_jobs,
-      pendingJobs: data.kpis.pending_jobs,
-      scheduledJobs: data.kpis.scheduled_jobs,
-      availableBlocks: data.kpis.available_blocks,
+      totalJobs,
+      criticalJobs,
+      pendingJobs,
+      scheduledJobs,
+      availableBlocks,
       utilization: data.kpis.block_utilization,
       conflicts: data.kpis.schedule_conflicts,
       bundles: data.kpis.cross_department_bundles,

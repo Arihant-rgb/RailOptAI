@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
 import { Brain, Sparkles, RefreshCw, CheckCircle2, AlertTriangle } from 'lucide-react'
-import { getMaintenanceJobs } from '../../services/api'
+import { getMaintenanceJobs, getBlocks } from '../../services/api'
 import mockData from '../../data/mockData.json'
 
 export default function PriorityEngine() {
   const [jobs, setJobs] = useState([])
+  const [blocks, setBlocks] = useState([])
   const [selectedJobId, setSelectedJobId] = useState('')
   const [loading, setLoading] = useState(true)
   const [isLive, setIsLive] = useState(false)
@@ -13,7 +14,7 @@ export default function PriorityEngine() {
     async function loadData() {
       try {
         setLoading(true)
-        const data = await getMaintenanceJobs()
+        const [data, blockData] = await Promise.all([getMaintenanceJobs(), getBlocks()])
         if (Array.isArray(data) && data.length > 0) {
           setJobs(data)
           setSelectedJobId(data[0].job_id || data[0].id)
@@ -22,6 +23,9 @@ export default function PriorityEngine() {
           setJobs(mockData.maintenanceJobs)
           setSelectedJobId(mockData.maintenanceJobs[0].id)
           setIsLive(false)
+        }
+        if (Array.isArray(blockData) && blockData.length > 0) {
+          setBlocks(blockData)
         }
       } catch (err) {
         console.warn('AI Priority API fallback:', err)
@@ -60,6 +64,19 @@ export default function PriorityEngine() {
   }
 
   const breakdown = selectedJob ? calculateScoreBreakdown(selectedJob) : { criticality: 0, urgency: 0, assetImpact: 0, delayRisk: 0, totalScore: 0 }
+
+  // Find the best available block for the selected job's section (longest duration that fits)
+  const jobSection = selectedJob.section_id || selectedJob.section
+  const jobDurationMins = (selectedJob.estimated_duration || 2) * 60
+  const bestBlock = blocks
+    .filter(b => b.section_id === jobSection && b.status === 'Available' && b.duration_minutes >= jobDurationMins)
+    .sort((a, b) => Math.abs(a.duration_minutes - jobDurationMins) - Math.abs(b.duration_minutes - jobDurationMins))[0] || null
+
+  const windowText = bestBlock
+    ? `${bestBlock.start_time}–${bestBlock.end_time} window (${bestBlock.duration_minutes} min) on ${jobSection}`
+    : jobSection
+      ? `No available block found on ${jobSection} — schedule via Dynamic Replanning`
+      : 'Select a job to see recommended window'
 
   return (
     <div className="space-y-6">
@@ -195,7 +212,7 @@ export default function PriorityEngine() {
                 <li>High severity defect score ({selectedJob.severity || 4}/5) contributes {Math.round(0.45 * breakdown.criticality)} points to priority.</li>
                 <li>{selectedJob.overdue_days || 5} days overdue adds {Math.round(0.25 * breakdown.urgency)} urgency score penalty.</li>
                 <li>Requires power block: <strong>{selectedJob.power_block_required ? 'Yes (OHE Isolation)' : 'No'}</strong>.</li>
-                <li>Recommended for priority scheduling during upcoming 02:00-04:00 night window on Section {selectedJob.section_id || selectedJob.section}.</li>
+                <li>Recommended for priority scheduling during upcoming <strong>{windowText}</strong>.</li>
               </ul>
             </div>
           </div>
