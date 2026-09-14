@@ -1,0 +1,101 @@
+{
+  "scenario_id": "S01_SIGNAL_FAILURE",
+  "section_id": "S01",
+  "incident": {
+    "job_id": "EMG_DEMO",
+    "department": "SMMS",
+    "defect_type": "Critical Signal Failure",
+    "priority": "Critical",
+    "estimated_duration": 1
+  },
+  "status": "OPTIMAL",
+  "feasible": true,
+  "cached": true,
+  "baseline": {
+    "total_disruption_cost": 0,
+    "scheduled_blocks": [
+      {
+        "job_id": "SM008",
+        "block_id": "S01",
+        "section_id": "S01",
+        "department": "SMMS",
+        "start_time": "01:00",
+        "end_time": "02:00",
+        "disruption_cost": 0,
+        "within_reverse_planning_window": true
+      },
+      {
+        "job_id": "TMS011",
+        "block_id": "S01",
+        "section_id": "S01",
+        "department": "TMS",
+        "start_time": "02:00",
+        "end_time": "04:00",
+        "disruption_cost": 0,
+        "within_reverse_planning_window": true
+      },
+      {
+        "job_id": "SM007",
+        "block_id": "S01",
+        "section_id": "S01",
+        "department": "SMMS",
+        "start_time": "12:00",
+        "end_time": "13:00",
+        "disruption_cost": 0,
+        "within_reverse_planning_window": true
+      }
+    ]
+  },
+  "after": {
+    "total_disruption_cost": 8,
+    "scheduled_blocks": [
+      {
+        "job_id": "EMG_DEMO",
+        "block_id": "S01",
+        "section_id": "S01",
+        "department": "SMMS",
+        "start_time": "01:00",
+        "end_time": "02:00",
+        "disruption_cost": 0,
+        "within_reverse_planning_window": true,
+        "is_emergency": true
+      },
+      {
+        "job_id": "SM008",
+        "block_id": "S01",
+        "section_id": "S01",
+        "department": "SMMS",
+        "start_time": "02:00",
+        "end_time": "03:00",
+        "disruption_cost": 0,
+        "within_reverse_planning_window": true
+      },
+      {
+        "job_id": "TMS011",
+        "block_id": "S01",
+        "section_id": "S01",
+        "department": "TMS",
+        "start_time": "12:00",
+        "end_time": "14:00",
+        "disruption_cost": 8,
+        "within_reverse_planning_window": true
+      },
+      {
+        "job_id": "SM007",
+        "block_id": "S01",
+        "section_id": "S01",
+        "department": "SMMS",
+        "start_time": "00:00",
+        "end_time": "01:00",
+        "disruption_cost": 0,
+        "within_reverse_planning_window": true
+      }
+    ]
+  },
+  "moved_jobs": [
+    { "job_id": "SM008", "from": "01:00–02:00", "to": "02:00–03:00" },
+    { "job_id": "TMS011", "from": "02:00–04:00", "to": "12:00–14:00" },
+    { "job_id": "SM007", "from": "12:00–13:00", "to": "00:00–01:00" }
+  ],
+  "explanation": "Critical signal failure on S01 is inserted into the first night possession (01:00–02:00). SM008 slides one hour later in the same window. TMS011 (2h track job) no longer fits the remaining night gap, so CP-SAT moves it to the 12:00–14:00 possession. SM007 is packed into the 00:00–01:00 reverse-planning gap so the corridor is not left idle."
+}
