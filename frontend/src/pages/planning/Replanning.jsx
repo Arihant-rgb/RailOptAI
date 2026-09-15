@@ -228,24 +228,58 @@ export default function Replanning() {
                 </div>
                 {forwardResult.bestBlocks?.length ? (
                   forwardResult.bestBlocks.map((b) => (
-                    <div key={b.block_id} className="p-3 border rounded-lg space-y-2">
+                    <div key={b.block_id} className="p-3.5 border border-gray-200 rounded-lg space-y-2 bg-white hover:border-rail-300 transition-all">
                       <div className="flex items-center justify-between gap-3">
                         <div>
-                          <span className="font-mono text-xs font-bold text-rail-700">{b.block_id}</span>
-                          <p className="text-xs text-gray-600">{b.section_id} · {b.start_time}–{b.end_time} · leftover {b.leftover_minutes} min</p>
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono text-sm font-bold text-rail-800">{b.block_id}</span>
+                            <span className="badge badge-info text-xs">{b.section_id}</span>
+                            <span className="text-xs text-gray-500 font-mono">{b.start_time} – {b.end_time}</span>
+                          </div>
+                          <p className="text-xs text-gray-600 mt-0.5">
+                            Window: {b.duration_minutes} min · Buffer leftover: <strong className="text-emerald-700">{b.leftover_minutes} min</strong>
+                          </p>
                         </div>
-                        <span className="badge badge-success">Fit {b.fit_score}</span>
+                        <span className="badge badge-success font-semibold">Fit Score {b.fit_score}%</span>
                       </div>
-                      <ul className="text-[11px] text-gray-600 list-disc pl-4 space-y-0.5">
-                        {(b.reasons || []).map((r) => <li key={r}>{r}</li>)}
-                      </ul>
-                      <button
-                        type="button"
-                        onClick={() => useBlockInReverse(b.block_id)}
-                        className="text-xs font-medium text-rail-700 hover:underline"
-                      >
-                        Use this block in Reverse →
-                      </button>
+
+                      <div className="p-2 bg-gray-50 rounded text-[11px] text-gray-700 space-y-0.5">
+                        {(b.reasons || []).map((r) => (
+                          <div key={r} className="flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
+                            <span>{r}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="flex items-center justify-between pt-1 border-t border-gray-100">
+                        <button
+                          type="button"
+                          onClick={() => useBlockInReverse(b.block_id)}
+                          className="text-xs font-medium text-rail-700 hover:underline"
+                        >
+                          Use this block in Reverse →
+                        </button>
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            try {
+                              const jobToBook = forwardResult.job?.job_id
+                              await api.post('/api/blocks/assign', {
+                                block_id: b.block_id,
+                                job_id: jobToBook,
+                                status: 'Occupied'
+                              })
+                              alert(`Successfully booked block ${b.block_id} for Job ${jobToBook}!`)
+                            } catch (err) {
+                              alert('Could not book block: ' + err.message)
+                            }
+                          }}
+                          className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-md shadow-sm transition-colors"
+                        >
+                          ✓ Confirm & Allocate Block
+                        </button>
+                      </div>
                     </div>
                   ))
                 ) : (
@@ -308,27 +342,54 @@ export default function Replanning() {
                   <p key={r} className="text-xs text-gray-600">• {r}</p>
                 ))}
                 {reverseResult.recommendedWorkPackage?.bundled_jobs?.length ? (
-                  reverseResult.recommendedWorkPackage.bundled_jobs.map((j) => (
-                    <div key={j.job_id} className="p-3 border rounded-lg flex items-center justify-between">
-                      <div>
-                        <span className="font-mono text-xs font-bold text-gray-900">{j.job_id}</span>
-                        <p className="text-xs text-gray-600">{j.defect_type} · {j.department} · {j.estimated_duration}h</p>
+                  <div className="space-y-2">
+                    {reverseResult.recommendedWorkPackage.bundled_jobs.map((j) => (
+                      <div key={j.job_id} className="p-3 border border-gray-200 rounded-lg flex items-center justify-between bg-white">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono text-xs font-bold text-gray-900">{j.job_id}</span>
+                            <span className="badge badge-info text-[10px]">{j.department}</span>
+                          </div>
+                          <p className="text-xs text-gray-600 mt-0.5">{j.defect_type} · Duration: {j.estimated_duration}h</p>
+                        </div>
+                        <span className="badge badge-success text-xs font-medium">{j.priority}</span>
                       </div>
-                      <span className="badge badge-info">{j.priority}</span>
+                    ))}
+                    <div className="pt-2 flex justify-end">
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          try {
+                            const bId = reverseResult.block?.block_id
+                            await api.post('/api/blocks/assign', {
+                              block_id: bId,
+                              status: 'Approved'
+                            })
+                            alert(`Work package for Block ${bId} successfully approved and locked!`)
+                          } catch (err) {
+                            alert('Could not approve work package: ' + err.message)
+                          }
+                        }}
+                        className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors"
+                      >
+                        ✓ Approve & Lock Bundle Package
+                      </button>
                     </div>
-                  ))
+                  </div>
                 ) : (
                   <p className="text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg p-3">
                     No pending jobs on this section fit the window.
                   </p>
                 )}
-                <button
-                  type="button"
-                  onClick={() => simulateOnSection(reverseResult.block?.section_id || 'S01')}
-                  className="text-xs font-medium text-red-700 hover:underline"
-                >
-                  Simulate emergency on {reverseResult.block?.section_id} →
-                </button>
+                <div className="pt-2 border-t border-gray-100 flex justify-between items-center">
+                  <button
+                    type="button"
+                    onClick={() => simulateOnSection(reverseResult.block?.section_id || 'S01')}
+                    className="text-xs font-medium text-red-700 hover:underline"
+                  >
+                    Simulate emergency on {reverseResult.block?.section_id} →
+                  </button>
+                </div>
               </div>
             ) : (
               <p className="text-xs text-gray-400 py-8 text-center">Fill % is used minutes / window minutes, packed by stored priority_score.</p>

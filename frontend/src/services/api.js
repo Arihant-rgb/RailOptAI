@@ -87,6 +87,16 @@ export const getBlocks = async (filters = {}) => {
   return response.data;
 };
 
+export const assignBlock = async (payload) => {
+  const response = await api.post('/api/blocks/assign', payload);
+  return response.data;
+};
+
+export const updateBlockStatus = async (blockId, status) => {
+  const response = await api.patch(`/api/blocks/${blockId}/status`, { status });
+  return response.data;
+};
+
 // Planning & Optimization APIs
 export const generatePlan = async (payload = {}) => {
   const response = await api.post('/api/planning/generate', payload);

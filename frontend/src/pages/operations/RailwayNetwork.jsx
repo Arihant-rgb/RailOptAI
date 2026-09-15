@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { MapPin, Navigation, RefreshCw, Zap, Layers } from 'lucide-react'
 import { getStations, getSections } from '../../services/api'
 import mockData from '../../data/mockData.json'
@@ -35,19 +35,62 @@ export default function RailwayNetwork() {
     loadNetworkData()
   }, [])
 
+  const stationMap = useMemo(() => {
+    const map = {}
+    stations.forEach(s => {
+      const code = s.station_code || s.code || s.Station_Code || ''
+      const name = s.station_name || s.name || s.Station_Name || ''
+      if (code) map[code] = name
+    })
+    return map
+  }, [stations])
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-bold text-gray-900">Railway Network Topology</h2>
-          <p className="text-sm text-gray-500">Live section infrastructure, station coordinates, and electrification status</p>
+          <p className="text-sm text-gray-500">Corridor alignment, station coordinates, and section infrastructure (Bangalore Division)</p>
         </div>
         <div className="flex items-center gap-2">
           <span className={`badge ${isLive ? 'badge-success' : 'badge-info'}`}>
             {isLive ? 'Live Network API' : 'Mock Fallback'}
           </span>
           {loading && <RefreshCw className="w-4 h-4 text-rail-600 animate-spin" />}
+        </div>
+      </div>
+
+      {/* Corridor Visual Breadcrumb Bar */}
+      <div className="card space-y-3 bg-gradient-to-r from-rail-900 via-rail-800 to-rail-900 text-white border-0 shadow-md">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <h3 className="font-semibold text-sm tracking-wide text-rail-100 uppercase">Primary Bangalore Mainline Corridor</h3>
+          </div>
+          <span className="text-xs text-rail-300 font-mono">10 Key Junctions · SWR Zone</span>
+        </div>
+
+        <div className="flex items-center gap-2 overflow-x-auto py-2 text-xs no-scrollbar">
+          {[
+            { code: 'SBC', name: 'Bangalore City' },
+            { code: 'BNC', name: 'Cantonment' },
+            { code: 'BNCE', name: 'East' },
+            { code: 'BYPL', name: 'Baiyyappanahali' },
+            { code: 'KJM', name: 'KR Puram' },
+            { code: 'WFD', name: 'Whitefield' },
+            { code: 'BWT', name: 'Bangarapet' }
+          ].map((st, i, arr) => (
+            <div key={st.code} className="flex items-center shrink-0">
+              <div className="px-3 py-1.5 rounded-lg bg-white/10 backdrop-blur-sm border border-white/15 text-center">
+                <p className="font-mono font-bold text-white text-xs">{st.code}</p>
+                <p className="text-[10px] text-rail-200 truncate max-w-[80px]">{st.name}</p>
+              </div>
+              {i < arr.length - 1 && (
+                <span className="px-1 text-rail-400 font-bold text-xs">→</span>
+              )}
+            </div>
+          ))}
         </div>
       </div>
 

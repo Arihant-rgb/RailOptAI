@@ -1,4 +1,4 @@
-section_id,from_station,to_station,distance_km,electrified,observed_train_traversals
+﻿section_id,from_station,to_station,distance_km,electrified,observed_train_traversals
 S01,KJM,WFD,9.48,true,93
 S02,BWT,WFD,45.18,true,91
 S03,BNC,BNCE,2.25,true,86

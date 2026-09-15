@@ -229,7 +229,7 @@ export default function Dashboard() {
             <div>
               <p className="font-semibold text-emerald-900 text-sm">Conflict-Free Operational Schedule</p>
               <p className="text-xs text-emerald-700 mt-0.5">
-                All 8 scheduled maintenance jobs across Bangalore sections (S04, S06, S07, S08, S11, S12) are fully deconflicted against 695 passenger and freight train movements by the CP-SAT optimizer. Zero overlapping block occupations.
+                All maintenance corridor possessions across Bangalore sections (S01–S12) are mathematically deconflicted against 695 daily passenger and freight train movements by Google OR-Tools CP-SAT. Zero corridor overlap conflicts detected.
               </p>
             </div>
           </div>

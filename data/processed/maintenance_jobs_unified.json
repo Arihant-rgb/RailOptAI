@@ -63,13 +63,16 @@
     "delay_risk": 31.6,
     "priority_score": 81.36,
     "priority": "Critical",
-    "status": "Pending",
+    "status": "Scheduled",
     "priority_reasons": {
       "criticality": 80,
       "urgency": 100,
       "asset_impact": 86,
       "delay_risk": 31.6
-    }
+    },
+    "block_id": "B017",
+    "scheduled_date": "2026-09-05",
+    "scheduled_window": "05:56-07:15"
   },
   {
     "job_id": "TMS002",
