@@ -73,15 +73,14 @@ router.get('/', async (req, res) => {
     const dynamicBundles = Object.values(secDeptMap).filter(set => set.size > 1).length;
 
     const kpis = {
-      ...data.kpis,
       totalJobs,
       criticalJobs,
       pendingJobs,
       scheduledJobs,
       availableBlocks,
-      utilization: dynamicUtilization > 0 ? dynamicUtilization : (data.kpis?.block_utilization ?? 23.7),
+      utilization: dynamicUtilization,
       conflicts: 0,
-      bundles: dynamicBundles || (data.kpis?.cross_department_bundles ?? 1),
+      bundles: dynamicBundles,
       jobsByDepartment,
       jobsByPriority,
       kpiTrends,

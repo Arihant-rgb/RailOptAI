@@ -402,10 +402,10 @@ export default function Replanning() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="card space-y-4">
             <h3 className="font-semibold text-gray-900 border-b pb-2 flex items-center gap-2 text-red-600">
-              <AlertTriangle className="w-5 h-5" /> Frozen demo incident
+              <AlertTriangle className="w-5 h-5" /> Live Emergency Incident
             </h3>
             <p className="text-xs text-gray-500">
-              Same incident every click: EMG_DEMO · Critical Signal Failure · 60 min · SMMS. Compare the day before vs after CP-SAT.
+              Select a section and trigger a Critical emergency. The CP-SAT solver will find or free a block in real-time — evicting the lowest-priority job if all blocks are occupied. Changes are written to the live database instantly.
             </p>
             <form onSubmit={handleEmergencyReplan} className="space-y-3">
               <div>

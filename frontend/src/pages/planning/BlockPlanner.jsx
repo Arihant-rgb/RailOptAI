@@ -1,10 +1,10 @@
 import { useState, useEffect, useMemo } from 'react'
 import { CalendarDays, CheckCircle, Clock, FileCheck, Play, RefreshCw, X, AlertCircle, Wrench, UserCheck } from 'lucide-react'
-import { getBlocks, generatePlan, assignBlock, getMaintenanceJobs } from '../../services/api'
+import { getBlocks, generatePlan, assignBlock, getMaintenanceJobs, resetDemo } from '../../services/api'
 import mockData from '../../data/mockData.json'
 
 const blockStatusColors = {
-  Approved: 'badge-success',
+  Approved: 'bg-blue-100 text-blue-800 border-blue-300',
   Available: 'badge-success',
   Occupied: 'bg-amber-100 text-amber-800 border-amber-300',
   Proposed: 'badge-info',
@@ -12,10 +12,10 @@ const blockStatusColors = {
 }
 
 const blockBarColors = {
-  Approved: 'bg-emerald-500',
+  Approved: 'bg-blue-500',
   Available: 'bg-emerald-500',
   Occupied: 'bg-amber-500',
-  Proposed: 'bg-blue-500',
+  Proposed: 'bg-blue-400',
   Completed: 'bg-gray-400'
 }
 
@@ -62,13 +62,15 @@ export default function BlockPlanner() {
   const handleGeneratePlan = async () => {
     try {
       setGenerating(true)
-      await generatePlan({
+      const result = await generatePlan({
         start_date: '2026-09-05',
         end_date: '2026-09-11',
         sections: ['S01','S02','S03','S04','S05','S06','S07','S08','S09','S10','S11','S12']
       })
-      alert('Optimized Block Plan generated successfully via backend optimizer engine!')
-      loadBlocks()
+      // Immediately reload blocks so the UI turns green → amber in real time
+      await loadData()
+      const count = result?.assignedCount ?? '?'
+      setActionSuccess(`✓ AI Plan Applied — ${count} pending jobs auto-assigned to optimal blocks. Dashboard KPIs updated.`)
     } catch (err) {
       alert('Failed to generate plan: ' + err.message)
     } finally {
@@ -77,9 +79,10 @@ export default function BlockPlanner() {
   }
 
   const stats = useMemo(() => ({
-    total: blocks.length,
-    approved: blocks.filter(b => (b.status || 'Available') === 'Approved' || b.status === 'Available').length,
-    proposed: blocks.filter(b => b.status === 'Proposed').length,
+    total:     blocks.length,
+    available: blocks.filter(b => b.status === 'Available').length,
+    occupied:  blocks.filter(b => b.status === 'Occupied').length,
+    approved:  blocks.filter(b => b.status === 'Approved').length,
     completed: blocks.filter(b => b.status === 'Completed').length
   }), [blocks])
 
@@ -176,6 +179,22 @@ export default function BlockPlanner() {
           <span className={`badge ${isLive ? 'badge-success' : 'badge-info'}`}>
             {isLive ? 'Live API Data' : 'Mock Fallback'}
           </span>
+          {/* Hidden reset button — for presenter use only, resets all blocks+jobs for fresh demo */}
+          <button
+            onClick={async () => {
+              try {
+                await resetDemo()
+                await loadData()
+                setActionSuccess('✓ Demo reset — all blocks available, all jobs pending.')
+              } catch (e) {
+                alert('Reset failed: ' + e.message)
+              }
+            }}
+            title="Reset Demo"
+            className="px-2 py-1 text-[10px] text-gray-300 hover:text-gray-500 rounded border border-transparent hover:border-gray-200 transition-colors"
+          >
+            ↺
+          </button>
           <button
             onClick={handleGeneratePlan}
             disabled={generating}

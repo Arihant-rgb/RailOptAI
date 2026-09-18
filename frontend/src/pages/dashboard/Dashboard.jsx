@@ -48,14 +48,14 @@ export default function Dashboard() {
         const data = await getKPIs()
         if (data) {
           setKpis({
-            totalJobs: data.total_jobs ?? data.totalJobs ?? 30,
-            criticalJobs: data.critical_jobs ?? data.criticalJobs ?? 3,
-            pendingJobs: data.pending_jobs ?? data.pendingJobs ?? 22,
-            scheduledJobs: data.scheduled_jobs ?? data.scheduledJobs ?? 8,
-            availableBlocks: data.available_blocks ?? data.availableBlocks ?? 25,
-            conflicts: data.schedule_conflicts ?? data.conflicts ?? 0,
-            utilization: data.block_utilization ?? data.utilization ?? 23.7,
-            bundles: data.cross_department_bundles ?? data.bundles ?? 1
+            totalJobs:      data.totalJobs      ?? 0,
+            criticalJobs:   data.criticalJobs   ?? 0,
+            pendingJobs:    data.pendingJobs     ?? 0,
+            scheduledJobs:  data.scheduledJobs  ?? 0,
+            availableBlocks:data.availableBlocks ?? 0,
+            conflicts:      data.conflicts       ?? 0,
+            utilization:    data.utilization     ?? 0,
+            bundles:        data.bundles         ?? 0
           })
 
           if (Array.isArray(data.jobsByDepartment) && data.jobsByDepartment.length > 0) {
@@ -77,6 +77,9 @@ export default function Dashboard() {
       }
     }
     loadData()
+    // Poll every 5 seconds so KPIs stay live when blocks/jobs are changed
+    const interval = setInterval(loadData, 5000)
+    return () => clearInterval(interval)
   }, [])
 
   return (

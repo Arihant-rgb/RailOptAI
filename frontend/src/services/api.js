@@ -103,6 +103,11 @@ export const generatePlan = async (payload = {}) => {
   return response.data;
 };
 
+export const resetDemo = async () => {
+  const response = await api.post('/api/planning/reset-demo');
+  return response.data;
+};
+
 export const getWeeklyPlan = async () => {
   const response = await api.get('/api/planning/weekly');
   return response.data;
