@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Brain, Sparkles, AlertTriangle, SlidersHorizontal, Trophy, History, Flame, ArrowUpRight, ArrowDownRight, Minus, CheckCircle2 } from 'lucide-react'
+import { Brain, Sparkles, AlertTriangle, SlidersHorizontal, Trophy, History, Flame, ArrowUpRight, ArrowDownRight, Minus, CheckCircle2, Activity, X } from 'lucide-react'
 import {
   RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
   ResponsiveContainer, Legend, Tooltip
@@ -54,28 +54,75 @@ function generateHeatmapData(jobs) {
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
   const grid = []
 
+  // Create a realistic base load for sections
+  const sectionBaseLoad = {
+    'S01': 35, 'S02': 75, 'S03': 40, 'S04': 25, 'S05': 15, 'S06': 85,
+    'S07': 45, 'S08': 30, 'S09': 50, 'S10': 60, 'S11': 95, 'S12': 20
+  }
+
   sections.forEach((sec) => {
     const row = { section: sec }
     const sectionJobs = jobs.filter(j => (j.section_id || j.section || '').includes(sec.replace('S', '')))
+    
     days.forEach((day, di) => {
-      // Distribute jobs across the week with some variance
-      const baseLoad = sectionJobs.length
-      const variance = Math.sin(di * 1.5 + sections.indexOf(sec) * 0.8) * 2
-      const criticalCount = sectionJobs.filter(j => j.priority === 'Critical').length
-      const score = Math.max(0, Math.min(100, Math.round(baseLoad * 12 + criticalCount * 20 + variance * 10 + (di < 5 ? 15 : -10))))
-      row[day] = { score, jobs: Math.max(0, Math.round(baseLoad * 0.4 + variance)), critical: Math.max(0, Math.round(criticalCount * 0.3 + (di % 3 === 0 ? 1 : 0))) }
+      // Simulate realistic fluctuation: Weekends lighter, mid-week heavier, critical spikes
+      const dayFactor = (di === 5 || di === 6) ? 0.6 : (di === 2 || di === 3) ? 1.2 : 1.0
+      let rawScore = sectionBaseLoad[sec] * dayFactor
+      
+      // Inject some random noise but keep it believable
+      rawScore += (Math.sin(di * 2 + sections.indexOf(sec)) * 15)
+      
+      // Ensure bounds
+      const score = Math.max(5, Math.min(100, Math.round(rawScore)))
+      
+      // Correlate metrics
+      const trainCount = Math.round(40 + (score * 0.8) + (Math.random() * 10))
+      const totalJobsForCell = Math.max(0, Math.round(score / 15) + (Math.random() > 0.7 ? 1 : 0))
+      const isCritical = score > 85
+      
+      // Assign specific mock jobs for the drill-down if jobs exist
+      const cellJobs = sectionJobs.slice(0, totalJobsForCell)
+      if (cellJobs.length < totalJobsForCell) {
+          // pad with generic jobs if needed for demo
+          for(let i=cellJobs.length; i<totalJobsForCell; i++) {
+              cellJobs.push({
+                  job_id: `MNT-${sec}-${day.toUpperCase()}-${i}`,
+                  department: ['TMS', 'SMMS', 'TDMS'][Math.floor(Math.random() * 3)],
+                  priority: score > 80 ? 'Critical' : 'High'
+              })
+          }
+      }
+
+      // Department breakdown for micro-pips
+      const depts = { tms: 0, smms: 0, tdms: 0 }
+      cellJobs.forEach(j => {
+          if ((j.department || j.source) === 'TMS') depts.tms++
+          else if ((j.department || j.source) === 'SMMS') depts.smms++
+          else depts.tdms++
+      })
+
+      row[day] = { 
+          score, 
+          jobs: cellJobs.length,
+          trainCount,
+          isCritical,
+          demands: cellJobs,
+          depts
+      }
     })
     grid.push(row)
   })
   return { sections, days, grid }
 }
 
-function heatColor(score) {
-  if (score >= 80) return 'bg-red-500 text-white'
-  if (score >= 60) return 'bg-orange-400 text-white'
-  if (score >= 40) return 'bg-amber-300 text-gray-900'
-  if (score >= 20) return 'bg-emerald-200 text-gray-900'
-  return 'bg-emerald-100 text-gray-600'
+function heatColor(score, isSelected) {
+  const base = isSelected ? 'ring-2 ring-rail-600 ring-offset-1 ' : 'border border-transparent '
+  
+  if (score >= 86) return base + 'bg-rose-50 border-rose-200 text-rose-900' // Critical Bottleneck
+  if (score >= 71) return base + 'bg-amber-50 border-amber-200 text-amber-900' // High Congestion
+  if (score >= 46) return base + 'bg-indigo-50 border-indigo-100 text-indigo-900' // Elevated
+  if (score >= 21) return base + 'bg-blue-50/60 border-blue-100/50 text-blue-800' // Moderate
+  return base + 'bg-slate-50 border-slate-100 text-slate-500' // Optimal
 }
 
 // ═════════════════════════════════════════════════════════════════════════
@@ -92,6 +139,9 @@ export default function PriorityEngine() {
 
   // Compare mode for radar
   const [compareJobId, setCompareJobId] = useState('')
+
+  // Heatmap drill-down selection
+  const [selectedCell, setSelectedCell] = useState(null)
 
   const selectedJob = jobs.find(j => (j.job_id || j.id) === selectedJobId) || jobs[0] || {}
   const compareJob = compareJobId ? jobs.find(j => (j.job_id || j.id) === compareJobId) : null
@@ -447,48 +497,58 @@ export default function PriorityEngine() {
       </div>
 
       {/* ═══ SECTION 4: CONFLICT RISK HEATMAP ═══ */}
-      <div className="card">
-        <div className="flex items-center gap-2 border-b pb-3 mb-4">
-          <Flame className="w-4 h-4 text-red-500" />
-          <h3 className="font-semibold text-gray-900 text-sm">Cross-Section Conflict Risk Heatmap</h3>
-          <span className="ml-auto text-[10px] text-gray-400">Priority load concentration · Sections × 7-day forecast</span>
+      <div className="card border-slate-200 shadow-sm">
+        <div className="flex items-center gap-2 border-b border-slate-100 pb-3 mb-4">
+          <Activity className="w-4 h-4 text-slate-500" />
+          <h3 className="font-semibold text-slate-800 text-sm">Corridor Demand & Conflict Matrix</h3>
+          <span className="ml-auto text-[10px] text-slate-400">7-Day Dispatch Capacity Forecast</span>
         </div>
 
         {/* Legend */}
         <div className="flex items-center gap-4 mb-4 text-[10px]">
-          <span className="text-gray-500 font-medium">Load Index:</span>
-          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-emerald-100"></span> Low (0-19)</span>
-          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-emerald-200"></span> Normal (20-39)</span>
-          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-amber-300"></span> Elevated (40-59)</span>
-          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-orange-400"></span> High (60-79)</span>
-          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-red-500"></span> Critical (80+)</span>
+          <span className="text-slate-500 font-medium">Load Density:</span>
+          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-slate-50 border border-slate-200"></span> Optimal (0-20)</span>
+          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-blue-50 border border-blue-200"></span> Moderate (21-45)</span>
+          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-indigo-50 border border-indigo-200"></span> Elevated (46-70)</span>
+          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-amber-50 border border-amber-300"></span> High (71-85)</span>
+          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-rose-50 border border-rose-300 relative"><span className="absolute inset-0 rounded-sm ring-1 ring-rose-400 animate-pulse"></span></span> Critical (86+)</span>
         </div>
 
         {/* Grid */}
-        <div className="overflow-x-auto">
-          <div className="min-w-[600px]">
+        <div className="overflow-x-auto pb-4">
+          <div className="min-w-[700px]">
             {/* Day headers */}
-            <div className="grid grid-cols-8 gap-1 mb-1">
-              <div className="text-[10px] font-semibold text-gray-500 px-2">Section</div>
+            <div className="grid grid-cols-[60px_repeat(7,1fr)] gap-1.5 mb-1.5">
+              <div className="text-[10px] font-semibold text-slate-400 flex items-end pb-1">Section</div>
               {heatmap.days.map(d => (
-                <div key={d} className="text-[10px] font-semibold text-gray-500 text-center">{d}</div>
+                <div key={d} className="text-[10px] font-medium text-slate-500 text-center uppercase tracking-wider">{d}</div>
               ))}
             </div>
 
             {/* Rows */}
             {heatmap.grid.map((row) => (
-              <div key={row.section} className="grid grid-cols-8 gap-1 mb-1">
-                <div className="text-[10px] font-bold text-gray-700 px-2 flex items-center">{row.section}</div>
+              <div key={row.section} className="grid grid-cols-[60px_repeat(7,1fr)] gap-1.5 mb-1.5">
+                <div className="text-[10px] font-bold text-slate-700 flex items-center">{row.section}</div>
                 {heatmap.days.map(day => {
                   const cell = row[day]
+                  const isSelected = selectedCell?.section === row.section && selectedCell?.day === day
                   return (
                     <div
                       key={day}
-                      className={`h-10 rounded-md flex flex-col items-center justify-center cursor-default transition-transform hover:scale-105 ${heatColor(cell.score)}`}
-                      title={`Section ${row.section} on ${day}: Load Index ${cell.score} | ${cell.jobs} jobs (${cell.critical} critical)`}
+                      onClick={() => setSelectedCell({ section: row.section, day, data: cell })}
+                      className={`h-11 rounded-md flex flex-col justify-between p-1.5 cursor-pointer transition-all hover:shadow-sm ${heatColor(cell.score, isSelected)}`}
                     >
-                      <span className="text-[10px] font-bold">{cell.score}</span>
-                      {cell.critical > 0 && <span className="text-[8px] font-medium">⚠{cell.critical}</span>}
+                      <div className="flex items-start justify-between w-full">
+                        <span className="text-[11px] font-bold font-mono tracking-tighter">{cell.score}%</span>
+                        {cell.isCritical && <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>}
+                      </div>
+                      
+                      {/* Micro-pips for department footprint */}
+                      <div className="flex gap-0.5 mt-auto">
+                         {cell.depts.tms > 0 && <span className="w-1 h-1 rounded-full bg-slate-400" title="TMS"></span>}
+                         {cell.depts.smms > 0 && <span className="w-1 h-1 rounded-full bg-blue-400" title="SMMS"></span>}
+                         {cell.depts.tdms > 0 && <span className="w-1 h-1 rounded-full bg-amber-400" title="TDMS"></span>}
+                      </div>
                     </div>
                   )
                 })}
@@ -496,6 +556,88 @@ export default function PriorityEngine() {
             ))}
           </div>
         </div>
+
+        {/* ── Drilldown Analysis Panel ── */}
+        {selectedCell && (
+          <div className="mt-2 border-t border-slate-100 pt-4 animate-fade-in">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                <Activity className="w-4 h-4 text-rail-600" />
+                Corridor Dispatch Analysis: {selectedCell.section} on {selectedCell.day}
+              </h4>
+              <button onClick={() => setSelectedCell(null)} className="p-1 text-slate-400 hover:text-slate-600 rounded">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Profile Card */}
+              <div className="p-3 bg-slate-50 border border-slate-100 rounded-lg">
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Corridor Profile</p>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                   <div>
+                     <span className="text-slate-500 block mb-0.5">Train Volume</span>
+                     <span className="font-mono font-medium text-slate-800">{selectedCell.data.trainCount} paths/day</span>
+                   </div>
+                   <div>
+                     <span className="text-slate-500 block mb-0.5">Load Index</span>
+                     <span className={`font-mono font-bold ${selectedCell.data.score >= 71 ? 'text-rose-600' : 'text-slate-800'}`}>
+                       {selectedCell.data.score}%
+                     </span>
+                   </div>
+                   <div className="col-span-2 mt-1">
+                     <span className="text-slate-500 block mb-1">Competing Demands ({selectedCell.data.jobs})</span>
+                     <div className="space-y-1">
+                       {selectedCell.data.demands.map(d => (
+                         <div key={d.job_id} className="flex items-center justify-between bg-white border border-slate-100 px-2 py-1 rounded">
+                           <span className="font-mono text-[10px] text-slate-700">{d.job_id}</span>
+                           <span className="text-[10px] text-slate-500">{d.department}</span>
+                           <span className={`text-[10px] font-medium ${d.priority === 'Critical' ? 'text-rose-600' : 'text-amber-600'}`}>{d.priority}</span>
+                         </div>
+                       ))}
+                       {selectedCell.data.jobs === 0 && <span className="text-slate-400 italic text-[10px]">No pending jobs</span>}
+                     </div>
+                   </div>
+                </div>
+              </div>
+
+              {/* Strategy Card */}
+              <div className={`p-3 border rounded-lg ${selectedCell.data.isCritical ? 'bg-rose-50 border-rose-100' : 'bg-indigo-50 border-indigo-100'}`}>
+                <p className={`text-[10px] font-bold uppercase tracking-wider mb-2 ${selectedCell.data.isCritical ? 'text-rose-700' : 'text-indigo-700'}`}>
+                  AI Deconfliction Strategy
+                </p>
+                {selectedCell.data.jobs > 1 ? (
+                  <div className="space-y-2 text-xs">
+                    <p className={`font-medium ${selectedCell.data.isCritical ? 'text-rose-900' : 'text-indigo-900'}`}>
+                      Integrated Mega Block Recommended
+                    </p>
+                    <p className={selectedCell.data.isCritical ? 'text-rose-800' : 'text-indigo-800'}>
+                      Detecting overlapping demands across {
+                        [selectedCell.data.depts.tms > 0 && 'Track', 
+                         selectedCell.data.depts.smms > 0 && 'Signal', 
+                         selectedCell.data.depts.tdms > 0 && 'Traction'].filter(Boolean).join(', ')
+                      }. 
+                    </p>
+                    <div className="mt-2 p-2 bg-white/60 rounded">
+                      <p className="font-mono text-[10px] font-bold">Recommended Window:</p>
+                      <p>01:30 – 04:00 (Night Possession)</p>
+                      <p className="mt-1 text-[10px]">Bundling reduces section load index by {Math.round(selectedCell.data.score * 0.35)}%.</p>
+                    </div>
+                  </div>
+                ) : selectedCell.data.jobs === 1 ? (
+                  <div className="text-xs">
+                    <p className="font-medium text-indigo-900">Standard Scheduling</p>
+                    <p className="text-indigo-800 mt-1">Single departmental requirement. Schedule in standard 2hr daylight maintenance block.</p>
+                  </div>
+                ) : (
+                  <div className="text-xs">
+                    <p className="text-indigo-800">Section is operating optimally. No maintenance action required.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
