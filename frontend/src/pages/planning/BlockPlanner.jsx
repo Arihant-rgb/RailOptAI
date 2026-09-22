@@ -59,14 +59,31 @@ export default function BlockPlanner() {
     loadData()
   }, [])
 
+  const [generateStep, setGenerateStep] = useState('');
+
   const handleGeneratePlan = async () => {
     try {
       setGenerating(true)
+      
+      // Artificial delay sequence for the demo video to show "AI processing"
+      setGenerateStep('Reading Pending Jobs...');
+      await new Promise(r => setTimeout(r, 600));
+      
+      setGenerateStep('Mapping 695 Train Constraints...');
+      await new Promise(r => setTimeout(r, 800));
+      
+      setGenerateStep('Running CP-SAT Optimizer...');
+      await new Promise(r => setTimeout(r, 1200));
+
       const result = await generatePlan({
         start_date: '2026-09-05',
         end_date: '2026-09-11',
         sections: ['S01','S02','S03','S04','S05','S06','S07','S08','S09','S10','S11','S12']
       })
+      
+      setGenerateStep('Optimal Solution Found!');
+      await new Promise(r => setTimeout(r, 500));
+
       // Immediately reload blocks so the UI turns green → amber in real time
       await loadData()
       const count = result?.assignedCount ?? '?'
@@ -75,6 +92,7 @@ export default function BlockPlanner() {
       alert('Failed to generate plan: ' + err.message)
     } finally {
       setGenerating(false)
+      setGenerateStep('')
     }
   }
 
@@ -198,10 +216,22 @@ export default function BlockPlanner() {
           <button
             onClick={handleGeneratePlan}
             disabled={generating}
-            className="flex items-center gap-2 px-4 py-2 bg-rail-600 hover:bg-rail-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
+            className={`flex items-center justify-center gap-2 px-4 py-2 text-white text-sm font-medium rounded-lg transition-all duration-300 ${
+              generating ? 'bg-indigo-600 shadow-inner' : 'bg-rail-600 hover:bg-rail-700 shadow-md'
+            }`}
+            style={{ minWidth: generating ? '240px' : '200px' }}
           >
-            {generating ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
-            Generate Plan (CP-SAT)
+            {generating ? (
+              <>
+                <RefreshCw className="w-4 h-4 animate-spin text-indigo-200" />
+                <span className="animate-pulse">{generateStep || 'Processing...'}</span>
+              </>
+            ) : (
+              <>
+                <Play className="w-4 h-4" />
+                Generate Plan (CP-SAT)
+              </>
+            )}
           </button>
         </div>
       </div>
@@ -231,7 +261,20 @@ export default function BlockPlanner() {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="text-base font-semibold text-gray-900">Corridor Possession Timeline (Click any block to Allocate)</h3>
-            <p className="text-xs text-gray-500">Green = Available Train-Free Window · Amber = Occupied with Maintenance Work</p>
+            <div className="flex items-center gap-5 mt-2 text-xs font-medium bg-gray-50/50 inline-flex p-1.5 px-3 rounded-lg border border-gray-100">
+              <span className="flex items-center gap-2 text-gray-700">
+                <span className="w-3 h-3 rounded shadow-sm bg-emerald-500 border border-emerald-600"></span> 
+                Available (Train-Free)
+              </span>
+              <span className="flex items-center gap-2 text-gray-700">
+                <span className="w-3 h-3 rounded shadow-sm bg-amber-500 border border-amber-600"></span> 
+                Occupied (AI Allotted / In-Work)
+              </span>
+              <span className="flex items-center gap-2 text-gray-700">
+                <span className="w-3 h-3 rounded shadow-sm bg-blue-500 border border-blue-600"></span> 
+                Approved (Locked by Manager)
+              </span>
+            </div>
           </div>
         </div>
 

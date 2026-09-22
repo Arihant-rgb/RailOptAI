@@ -15,16 +15,16 @@
     "delay_risk": 81.5,
     "priority_score": 96.15,
     "priority": "Critical",
-    "status": "Scheduled",
+    "status": "Pending",
     "priority_reasons": {
       "criticality": 100,
       "urgency": 100,
       "asset_impact": 90,
       "delay_risk": 81.5
     },
-    "block_id": "B028",
-    "start_time": "02:00",
-    "end_time": "05:00",
+    "block_id": null,
+    "start_time": null,
+    "end_time": null,
     "date": "2026-09-05"
   },
   {
@@ -43,16 +43,16 @@
     "delay_risk": 80.2,
     "priority_score": 83.52,
     "priority": "Critical",
-    "status": "Scheduled",
+    "status": "Pending",
     "priority_reasons": {
       "criticality": 100,
       "urgency": 50,
       "asset_impact": 90,
       "delay_risk": 80.2
     },
-    "block_id": "B030",
-    "start_time": "00:30",
-    "end_time": "03:30",
+    "block_id": null,
+    "start_time": null,
+    "end_time": null,
     "date": "2026-09-05"
   },
   {
@@ -71,18 +71,18 @@
     "delay_risk": 31.6,
     "priority_score": 81.36,
     "priority": "Critical",
-    "status": "Scheduled",
+    "status": "Pending",
     "priority_reasons": {
       "criticality": 80,
       "urgency": 100,
       "asset_impact": 86,
       "delay_risk": 31.6
     },
-    "block_id": "B015",
+    "block_id": null,
     "scheduled_date": "2026-09-05",
     "scheduled_window": "05:56-07:15",
-    "start_time": "01:10",
-    "end_time": "02:02",
+    "start_time": null,
+    "end_time": null,
     "date": "2026-09-05"
   },
   {
@@ -101,16 +101,16 @@
     "delay_risk": 81.5,
     "priority_score": 77.4,
     "priority": "High",
-    "status": "Scheduled",
+    "status": "Pending",
     "priority_reasons": {
       "criticality": 100,
       "urgency": 25,
       "asset_impact": 90,
       "delay_risk": 81.5
     },
-    "block_id": "B029",
-    "start_time": "13:00",
-    "end_time": "15:30",
+    "block_id": null,
+    "start_time": null,
+    "end_time": null,
     "date": "2026-09-05"
   },
   {
@@ -129,16 +129,16 @@
     "delay_risk": 81,
     "priority_score": 76.35,
     "priority": "High",
-    "status": "Scheduled",
+    "status": "Pending",
     "priority_reasons": {
       "criticality": 100,
       "urgency": 25,
       "asset_impact": 85,
       "delay_risk": 81
     },
-    "block_id": "B001",
-    "start_time": "00:36",
-    "end_time": "01:27",
+    "block_id": null,
+    "start_time": null,
+    "end_time": null,
     "date": "2026-09-05"
   },
   {
@@ -157,18 +157,18 @@
     "delay_risk": 49.6,
     "priority_score": 75.91,
     "priority": "High",
-    "status": "Scheduled",
+    "status": "Pending",
     "priority_reasons": {
       "criticality": 80,
       "urgency": 75,
       "asset_impact": 81,
       "delay_risk": 49.6
     },
-    "block_id": "B008",
+    "block_id": null,
     "scheduled_date": "2026-09-05",
     "scheduled_window": "00:10-02:50",
-    "start_time": "19:21",
-    "end_time": "20:15",
+    "start_time": null,
+    "end_time": null,
     "date": "2026-09-05"
   },
   {
@@ -187,16 +187,16 @@
     "delay_risk": 81,
     "priority_score": 72.8,
     "priority": "High",
-    "status": "Scheduled",
+    "status": "Pending",
     "priority_reasons": {
       "criticality": 80,
       "urgency": 50,
       "asset_impact": 81,
       "delay_risk": 81
     },
-    "block_id": "B002",
-    "start_time": "01:52",
-    "end_time": "02:55",
+    "block_id": null,
+    "start_time": null,
+    "end_time": null,
     "date": "2026-09-05"
   },
   {
@@ -215,18 +215,18 @@
     "delay_risk": 54.8,
     "priority_score": 72.73,
     "priority": "High",
-    "status": "Scheduled",
+    "status": "Pending",
     "priority_reasons": {
       "criticality": 100,
       "urgency": 25,
       "asset_impact": 80,
       "delay_risk": 54.8
     },
-    "block_id": "B004",
+    "block_id": null,
     "scheduled_date": "2026-09-05",
     "scheduled_window": "00:10-03:15",
-    "start_time": "00:10",
-    "end_time": "03:15",
+    "start_time": null,
+    "end_time": null,
     "date": "2026-09-05"
   },
   {
@@ -245,16 +245,16 @@
     "delay_risk": 79.5,
     "priority_score": 72.65,
     "priority": "High",
-    "status": "Scheduled",
+    "status": "Pending",
     "priority_reasons": {
       "criticality": 80,
       "urgency": 50,
       "asset_impact": 81,
       "delay_risk": 79.5
     },
-    "block_id": "B032",
-    "start_time": "01:15",
-    "end_time": "04:15",
+    "block_id": null,
+    "start_time": null,
+    "end_time": null,
     "date": "2026-09-05"
   },
   {
@@ -273,18 +273,18 @@
     "delay_risk": 79.5,
     "priority_score": 70.65,
     "priority": "High",
-    "status": "Scheduled",
+    "status": "Pending",
     "priority_reasons": {
       "criticality": 80,
       "urgency": 50,
       "asset_impact": 71,
       "delay_risk": 79.5
     },
-    "block_id": "B033",
+    "block_id": null,
     "scheduled_date": "2026-09-05",
     "scheduled_window": "14:00-16:00",
-    "start_time": "14:00",
-    "end_time": "16:00",
+    "start_time": null,
+    "end_time": null,
     "date": "2026-09-05"
   },
   {
@@ -303,16 +303,16 @@
     "delay_risk": 84.5,
     "priority_score": 70.45,
     "priority": "High",
-    "status": "Scheduled",
+    "status": "Pending",
     "priority_reasons": {
       "criticality": 100,
       "urgency": 0,
       "asset_impact": 85,
       "delay_risk": 84.5
     },
-    "block_id": "B026",
-    "start_time": "01:00",
-    "end_time": "04:00",
+    "block_id": null,
+    "start_time": null,
+    "end_time": null,
     "date": "2026-09-05"
   },
   {
@@ -361,16 +361,16 @@
     "delay_risk": 31.6,
     "priority_score": 68.86,
     "priority": "High",
-    "status": "Scheduled",
+    "status": "Pending",
     "priority_reasons": {
       "criticality": 80,
       "urgency": 50,
       "asset_impact": 86,
       "delay_risk": 31.6
     },
-    "block_id": "B016",
-    "start_time": "03:15",
-    "end_time": "04:50",
+    "block_id": null,
+    "start_time": null,
+    "end_time": null,
     "date": "2026-09-05"
   },
   {
@@ -389,16 +389,16 @@
     "delay_risk": 81.5,
     "priority_score": 67.6,
     "priority": "High",
-    "status": "Scheduled",
+    "status": "Pending",
     "priority_reasons": {
       "criticality": 80,
       "urgency": 25,
       "asset_impact": 86,
       "delay_risk": 81.5
     },
-    "block_id": "B036",
-    "start_time": "00:00",
-    "end_time": "05:00",
+    "block_id": null,
+    "start_time": null,
+    "end_time": null,
     "date": "2026-09-05"
   },
   {
@@ -417,18 +417,18 @@
     "delay_risk": 80.2,
     "priority_score": 67.47,
     "priority": "High",
-    "status": "Scheduled",
+    "status": "Pending",
     "priority_reasons": {
       "criticality": 80,
       "urgency": 25,
       "asset_impact": 86,
       "delay_risk": 80.2
     },
-    "block_id": "B031",
+    "block_id": null,
     "scheduled_date": "2026-09-05",
     "scheduled_window": "00:30-03:30",
-    "start_time": "11:00",
-    "end_time": "12:45",
+    "start_time": null,
+    "end_time": null,
     "date": "2026-09-05"
   },
   {
@@ -447,16 +447,16 @@
     "delay_risk": 80.2,
     "priority_score": 67.47,
     "priority": "High",
-    "status": "Scheduled",
+    "status": "Pending",
     "priority_reasons": {
       "criticality": 80,
       "urgency": 25,
       "asset_impact": 86,
       "delay_risk": 80.2
     },
-    "block_id": "B038",
-    "start_time": "00:00",
-    "end_time": "05:00",
+    "block_id": null,
+    "start_time": null,
+    "end_time": null,
     "date": "2026-09-05"
   },
   {
@@ -475,16 +475,16 @@
     "delay_risk": 31.6,
     "priority_score": 66.16,
     "priority": "High",
-    "status": "Scheduled",
+    "status": "Pending",
     "priority_reasons": {
       "criticality": 100,
       "urgency": 0,
       "asset_impact": 90,
       "delay_risk": 31.6
     },
-    "block_id": "B017",
-    "start_time": "05:56",
-    "end_time": "07:15",
+    "block_id": null,
+    "start_time": null,
+    "end_time": null,
     "date": "2026-09-05"
   },
   {
@@ -531,16 +531,16 @@
     "delay_risk": 47.2,
     "priority_score": 64.17,
     "priority": "High",
-    "status": "Scheduled",
+    "status": "Pending",
     "priority_reasons": {
       "criticality": 80,
       "urgency": 25,
       "asset_impact": 86,
       "delay_risk": 47.2
     },
-    "block_id": "B034",
-    "start_time": "00:45",
-    "end_time": "03:45",
+    "block_id": null,
+    "start_time": null,
+    "end_time": null,
     "date": "2026-09-05"
   },
   {
@@ -586,16 +586,16 @@
     "delay_risk": 54.8,
     "priority_score": 61.38,
     "priority": "High",
-    "status": "Scheduled",
+    "status": "Pending",
     "priority_reasons": {
       "criticality": 60,
       "urgency": 50,
       "asset_impact": 82,
       "delay_risk": 54.8
     },
-    "block_id": "B005",
-    "start_time": "14:15",
-    "end_time": "15:00",
+    "block_id": null,
+    "start_time": null,
+    "end_time": null,
     "date": "2026-09-05"
   },
   {
@@ -614,16 +614,16 @@
     "delay_risk": 84.5,
     "priority_score": 58.1,
     "priority": "Medium",
-    "status": "Scheduled",
+    "status": "Pending",
     "priority_reasons": {
       "criticality": 60,
       "urgency": 25,
       "asset_impact": 82,
       "delay_risk": 84.5
     },
-    "block_id": "B027",
-    "start_time": "12:00",
-    "end_time": "14:00",
+    "block_id": null,
+    "start_time": null,
+    "end_time": null,
     "date": "2026-09-05"
   },
   {
@@ -642,16 +642,16 @@
     "delay_risk": 31.6,
     "priority_score": 58.06,
     "priority": "Medium",
-    "status": "Scheduled",
+    "status": "Pending",
     "priority_reasons": {
       "criticality": 60,
       "urgency": 50,
       "asset_impact": 77,
       "delay_risk": 31.6
     },
-    "block_id": "B018",
-    "start_time": "16:12",
-    "end_time": "18:32",
+    "block_id": null,
+    "start_time": null,
+    "end_time": null,
     "date": "2026-09-05"
   },
   {
@@ -670,16 +670,16 @@
     "delay_risk": 47.2,
     "priority_score": 55.92,
     "priority": "Medium",
-    "status": "Scheduled",
+    "status": "Pending",
     "priority_reasons": {
       "criticality": 80,
       "urgency": 0,
       "asset_impact": 76,
       "delay_risk": 47.2
     },
-    "block_id": "B035",
-    "start_time": "15:30",
-    "end_time": "17:30",
+    "block_id": null,
+    "start_time": null,
+    "end_time": null,
     "date": "2026-09-05"
   },
   {
@@ -838,16 +838,16 @@
     "delay_risk": 84.5,
     "priority_score": 39.05,
     "priority": "Low",
-    "status": "Scheduled",
+    "status": "Pending",
     "priority_reasons": {
       "criticality": 40,
       "urgency": 0,
       "asset_impact": 63,
       "delay_risk": 84.5
     },
-    "block_id": "B037",
-    "start_time": "00:00",
-    "end_time": "05:00",
+    "block_id": null,
+    "start_time": null,
+    "end_time": null,
     "date": "2026-09-05"
   },
   {
@@ -883,10 +883,10 @@
     "delay_risk": 68,
     "priority_score": 70,
     "priority": "Critical",
-    "status": "Scheduled",
-    "block_id": "B003",
-    "start_time": "00:50",
-    "end_time": "02:50",
+    "status": "Pending",
+    "block_id": null,
+    "start_time": null,
+    "end_time": null,
     "date": "2026-09-05"
   },
   {
@@ -905,12 +905,12 @@
     "delay_risk": 86,
     "priority_score": 75,
     "priority": "High",
-    "status": "Scheduled",
-    "block_id": "B019",
+    "status": "Pending",
+    "block_id": null,
     "scheduled_date": "2026-09-05",
     "scheduled_window": "16:30-21:40",
-    "start_time": "00:10",
-    "end_time": "03:25",
+    "start_time": null,
+    "end_time": null,
     "date": "2026-09-05"
   },
   {
@@ -929,10 +929,10 @@
     "delay_risk": 80,
     "priority_score": 77,
     "priority": "High",
-    "status": "Scheduled",
-    "block_id": "B009",
-    "start_time": "00:40",
-    "end_time": "03:01",
+    "status": "Pending",
+    "block_id": null,
+    "start_time": null,
+    "end_time": null,
     "date": "2026-09-05"
   },
   {
@@ -974,12 +974,12 @@
     "delay_risk": 86,
     "priority_score": 72,
     "priority": "Critical",
-    "status": "Scheduled",
-    "block_id": "B020",
+    "status": "Pending",
+    "block_id": null,
     "scheduled_date": "2026-09-05",
     "scheduled_window": "00:10-03:25",
-    "start_time": "04:03",
-    "end_time": "07:10",
+    "start_time": null,
+    "end_time": null,
     "date": "2026-09-05"
   },
   {
@@ -998,10 +998,10 @@
     "delay_risk": 80,
     "priority_score": 77,
     "priority": "Critical",
-    "status": "Scheduled",
-    "block_id": "B010",
-    "start_time": "12:33",
-    "end_time": "13:46",
+    "status": "Pending",
+    "block_id": null,
+    "start_time": null,
+    "end_time": null,
     "date": "2026-09-05"
   },
   {
@@ -1020,12 +1020,12 @@
     "delay_risk": 86,
     "priority_score": 69,
     "priority": "Critical",
-    "status": "Scheduled",
-    "block_id": "B021",
+    "status": "Pending",
+    "block_id": null,
     "scheduled_date": "2026-09-05",
     "scheduled_window": "00:10-03:25",
-    "start_time": "07:54",
-    "end_time": "09:55",
+    "start_time": null,
+    "end_time": null,
     "date": "2026-09-05"
   },
   {
@@ -1044,10 +1044,10 @@
     "delay_risk": 74,
     "priority_score": 77,
     "priority": "Critical",
-    "status": "Scheduled",
-    "block_id": "B007",
-    "start_time": "11:25",
-    "end_time": "12:45",
+    "status": "Pending",
+    "block_id": null,
+    "start_time": null,
+    "end_time": null,
     "scheduled_date": "2026-09-05",
     "scheduled_window": "00:10-02:50",
     "date": "2026-09-05"
@@ -1055,7 +1055,31 @@
   {
     "job_id": "TMS112",
     "department": "TMS",
-    "section_id": "S08",
+    "section_id": "S05",
+    "asset_id": "TMS-ASSET",
+    "asset_type": "Track",
+    "defect_type": "Rail Crack",
+    "maintenance_type": "Corrective",
+    "severity": 5,
+    "overdue_days": 3,
+    "estimated_duration": 2,
+    "power_block_required": false,
+    "asset_impact": 70,
+    "delay_risk": 65,
+    "priority_score": 72,
+    "priority": "High",
+    "status": "Pending",
+    "block_id": null,
+    "scheduled_date": "2026-09-05",
+    "scheduled_window": "00:10-02:50",
+    "start_time": null,
+    "end_time": null,
+    "date": "2026-09-05"
+  },
+  {
+    "job_id": "TMS113",
+    "department": "TMS",
+    "section_id": "S06",
     "asset_id": "TMS-ASSET",
     "asset_type": "Track",
     "defect_type": "Rail Crack",
@@ -1064,26 +1088,14 @@
     "overdue_days": 5,
     "estimated_duration": 2,
     "power_block_required": false,
-    "asset_impact": 90,
-    "delay_risk": 74,
-    "priority_score": 83,
-    "priority": "Critical",
-    "status": "Scheduled",
-    "block_id": "B006",
-    "scheduled_date": "2026-09-05",
-    "scheduled_window": "00:10-02:50"
-  },
-  {
-    "job_id": "EMG_S12",
-    "section_id": "S12",
-    "department": "SMMS",
-    "defect_type": "Wire Defect",
-    "priority": "Critical",
-    "estimated_duration": 1,
-    "priority_score": 99,
-    "status": "Scheduled",
-    "block_id": "B022",
-    "start_time": "10:35",
-    "end_time": "11:20"
+    "asset_impact": 70,
+    "delay_risk": 68,
+    "priority_score": 78,
+    "priority": "High",
+    "status": "Pending",
+    "block_id": null,
+    "start_time": null,
+    "end_time": null,
+    "date": "2026-09-05"
   }
 ]

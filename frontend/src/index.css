@@ -22,7 +22,19 @@
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
   }
   .badge-critical {
-    @apply badge bg-red-100 text-red-800;
+    @apply badge bg-red-100 text-red-800 relative pl-5;
+  }
+  .badge-critical::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 6px;
+    background-color: #ef4444;
+    border-radius: 50%;
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
   .badge-warning {
     @apply badge bg-amber-100 text-amber-800;
